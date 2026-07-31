@@ -648,13 +648,13 @@
     <script>
         // 🔹 1. अपनी Firebase Credentials यहाँ दर्ज करें
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AlzaSyD1r9auYHIt861GSomNFI viHDe0wu41MUK",
+            authDomain: "https://aditya-matka-a605f.firebaseapp.com",
+            databaseURL: "https://aditya-matka-a605f-default-rtdb.firebaseio.com",
+            projectId: "aditya-matka-a605f",
+            storageBucket: "https://aditya-matka-a605f.firebasestorage.app",
+            messagingSenderId: "127854755006",
+            appId: "1:127854755006:web:49f97390 48ed69f97332ef",
         };
 
         // Firebase Initialize
@@ -784,7 +784,7 @@
             let amt = parseInt(document.getElementById('fund-amount').value);
             let utr = document.getElementById('fund-utr').value.trim();
 
-            if(!amt || amt < 100) return alert("कम से कम ₹100 का फंड ऐड करें!");
+            if(!amt || amt < 100) return alert("कम से कम ₹300 का फंड ऐड करें!");
             if(!utr || utr.length < 10) return alert("सही 12-अंकों का UTR नंबर डालें!");
 
             db.ref('requests').push({
@@ -808,7 +808,7 @@
             let amt = parseInt(document.getElementById('withdraw-amount').value);
             let details = document.getElementById('withdraw-details').value.trim();
 
-            if(!amt || amt < 300) return alert("कम से कम ₹300 का विथड्रॉल कर सकते हैं!");
+            if(!amt || amt < 300) return alert("कम से कम ₹500 का विथड्रॉल कर सकते हैं!");
             if(amt > walletBalance) return alert("पर्याप्त वॉलेट बैलेंस नहीं है!");
             if(!details) return alert("अपनी UPI ID दर्ज करें!");
 
