@@ -1,181 +1,1435 @@
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aditya Matka - Admin Panel</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <style>
-        * { box-sizing: border-box; font-family: sans-serif; margin: 0; padding: 0; }
-        body { background: #f4f6f9; padding: 15px; }
-        .header { background: #1e293b; color: white; padding: 15px; text-align: center; border-radius: 8px; font-weight: bold; font-size: 20px; margin-bottom: 20px; }
-        .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h2 { font-size: 16px; margin-bottom: 12px; border-bottom: 2px solid #e0005a; padding-bottom: 5px; color: #1e293b; }
-        .req-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 8px; border-radius: 6px; }
-        .req-info { font-size: 13px; color: #334155; }
-        .req-info strong { font-size: 14px; color: #0f172a; }
-        .btn-approve { background: #22c55e; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        .btn-reject { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-left: 5px; }
-    </style>
-</head>
-<body>
-
-    <div class="header">👑 Aditya Matka Admin Panel</div>
-
-    <!-- Deposit Requests -->
-    <div class="card">
-        <h2>💰 Add Fund Requests (डिपॉज़िट)</h2>
-        <div id="deposit-list">लोड हो रहा है...</div>
-    </div>
-
-    <!-- Withdrawal Requests -->
-    <div class="card">
-        <h2>📤 Withdrawal Requests (विथड्रॉल)</h2>
-        <div id="withdraw-list">लोड हो रहा है...</div>
-    </div>
-
-    <!-- Registered Users List -->
-    <div class="card">
-        <h2>👥 सभी यूज़र्स (Users List)</h2>
-        <div id="users-list">लोड हो रहा है...</div>
-    </div>
-
-    <script>
-        // 🔹 Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyD1r9auYHIt861GSomNFLviHDe0wu41MUk",
-            authDomain: "aditya-matka-a605f.firebaseapp.com",
-            databaseURL: "https://aditya-matka-a605f-default-rtdb.firebaseio.com",
-            projectId: "aditya-matka-a605f",
-            storageBucket: "aditya-matka-a605f.firebasestorage.app",
-            messagingSenderId: "127854755006",
-            appId: "1:127854755006:web:49f9739048ed69f97332ef"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        window.onload = function() {
-            loadRequests();
-            loadUsers();
-        };
-
-        // 🔄 Request Loaders
-        function loadRequests() {
-            db.ref('requests').on('value', (snapshot) => {
-                const depContainer = document.getElementById('deposit-list');
-                const withContainer = document.getElementById('withdraw-list');
-                
-                depContainer.innerHTML = "";
-                withContainer.innerHTML = "";
-
-                if (!snapshot.exists()) {
-                    depContainer.innerHTML = "<p style='font-size:13px; color:#999;'>कोई डिपॉज़िट रिक्वेस्ट नहीं है।</p>";
-                    withContainer.innerHTML = "<p style='font-size:13px; color:#999;'>कोई विथड्रॉल रिक्वेस्ट नहीं है।</p>";
-                    return;
-                }
-
-                let hasDep = false, hasWith = false;
-
-                snapshot.forEach((child) => {
-                    let key = child.key;
-                    let req = child.val();
-
-                    if (req.status === 'pending') {
-                        if (req.type === 'deposit') {
-                            hasDep = true;
-                            depContainer.innerHTML += `
-                                <div class="req-item">
-                                    <div class="req-info">
-                                        <strong>📱 ${req.userPhone}</strong><br>
-                                        राशि: <span style="color:#22c55e; font-weight:bold;">₹${req.amount}</span><br>
-                                        UTR: <strong>${req.utr}</strong><br>
-                                        <small style="color:#999;">${req.time}</small>
-                                    </div>
-                                    <div>
-                                        <button class="btn-approve" onclick="approveDeposit('${key}', '${req.userPhone}', ${req.amount})">Approve</button>
-                                        <button class="btn-reject" onclick="rejectRequest('${key}')">Reject</button>
-                                    </div>
-                                </div>
-                            `;
-                        } else if (req.type === 'withdrawal') {
-                            hasWith = true;
-                            withContainer.innerHTML += `
-                                <div class="req-item">
-                                    <div class="req-info">
-                                        <strong>📱 ${req.userPhone}</strong><br>
-                                        राशि: <span style="color:#ef4444; font-weight:bold;">₹${req.amount}</span><br>
-                                        UPI/Details: <strong>${req.details}</strong><br>
-                                        <small style="color:#999;">${req.time}</small>
-                                    </div>
-                                    <div>
-                                        <button class="btn-approve" onclick="approveWithdrawal('${key}')">Approve</button>
-                                        <button class="btn-reject" onclick="rejectRequest('${key}')">Reject</button>
-                                    </div>
-                                </div>
-                            `;
-                        }
-                    }
-                });
-
-                if(!hasDep) depContainer.innerHTML = "<p style='font-size:13px; color:#999;'>कोई पेंडिंग डिपॉज़िट नहीं है।</p>";
-                if(!hasWith) withContainer.innerHTML = "<p style='font-size:13px; color:#999;'>कोई पेंडिंग विथड्रॉल नहीं है।</p>";
-            });
-        }
-
-        // ✅ APPROVE DEPOSIT (Add Balance to User)
-        function approveDeposit(reqKey, phone, amount) {
-            db.ref('users/' + phone + '/balance').get().then((snapshot) => {
-                let currentBal = snapshot.exists() ? snapshot.val() : 0;
-                let newBal = currentBal + amount;
-
-                db.ref('users/' + phone + '/balance').set(newBal).then(() => {
-                    db.ref('requests/' + reqKey + '/status').set('approved');
-                    alert(`₹${amount} सफलतापूर्वक ${phone} के वॉलेट में जोड़ दिए गए हैं!`);
-                });
-            });
-        }
-
-        // ✅ APPROVE WITHDRAWAL
-        function approveWithdrawal(reqKey) {
-            db.ref('requests/' + reqKey + '/status').set('approved');
-            alert("विथड्रॉल अप्रूव हो गया!");
-        }
-
-        // ❌ REJECT REQUEST
-        function rejectRequest(reqKey) {
-            db.ref('requests/' + reqKey + '/status').set('rejected');
-            alert("रिक्वेस्ट रिजेक्ट कर दी गई है।");
-        }
-
-        // 👥 LOAD ALL USERS
-        function loadUsers() {
-            db.ref('users').on('value', (snapshot) => {
-                const container = document.getElementById('users-list');
-                container.innerHTML = "";
-
-                if (!snapshot.exists()) {
-                    container.innerHTML = "<p style='font-size:13px; color:#999;'>कोई यूज़र नहीं मिला।</p>";
-                    return;
-                }
-
-                snapshot.forEach((child) => {
-                    let u = child.val();
-                    container.innerHTML += `
-                        <div class="req-item">
-                            <div class="req-info">
-                                <strong>👤 ${u.name} (${u.phone})</strong><br>
-                                Pass: ${u.password}
-                            </div>
-                            <div style="font-weight:bold; color:#0f172a;">
-                                💳 ₹${u.balance || 0}
+<!-- TAB 9: WINNING PREDICTION -->
+                <div id="tab-winning-predict" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-chart-line text-purple-600 mr-2"></i> Realtime Winning Prediction Analysis</span>
+                            <div class="flex gap-2">
+                                <select id="predict-market-select" class="form-select text-xs py-1" onchange="loadWinningPredictions()">
+                                    <option value="">-- Select Market --</option>
+                                </select>
+                                <select id="predict-type-select" class="form-select text-xs py-1" onchange="loadWinningPredictions()">
+                                    <option value="SINGLE_DIGIT">Single Digit (0-9)</option>
+                                    <option value="JODI_DIGIT">Jodi Digit (00-99)</option>
+                                    <option value="SINGLE_PANNA">Single Panna</option>
+                                    <option value="DOUBLE_PANNA">Double Panna</option>
+                                    <option value="TRIPLE_PANNA">Triple Panna</option>
+                                </select>
                             </div>
                         </div>
-                    `;
-                });
+
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4 text-xs text-blue-800">
+                            <i class="fa-solid fa-circle-info mr-1"></i> Check total exposure and payouts for each digit/number before declaring market results to calculate net profit or loss.
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Number / Ank</th>
+                                        <th>Total Bids Placed</th>
+                                        <th>Total Amount Bet (₹)</th>
+                                        <th>Estimated Win Payout (₹)</th>
+                                        <th>Net Profit / Loss (₹)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-winning-predictions">
+                                    <tr>
+                                        <td colspan="5" class="text-center py-6 text-slate-400">Select a market above to generate real-time exposure calculations.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 10: DEPOSIT REQUESTS -->
+                <div id="tab-deposit-req" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-arrow-down-left-and-arrow-up-right-to-center text-emerald-600 mr-2"></i> Pending & Recent Deposit Requests</span>
+                            <div class="flex gap-2">
+                                <select id="deposit-filter-status" class="form-select text-xs py-1" onchange="loadDepositRequestsTable()">
+                                    <option value="PENDING">Pending Only</option>
+                                    <option value="APPROVED">Approved Only</option>
+                                    <option value="REJECTED">Rejected Only</option>
+                                    <option value="ALL">All Requests</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Req. ID</th>
+                                        <th>User Details</th>
+                                        <th>Amount</th>
+                                        <th>Transaction / UTR ID</th>
+                                        <th>Payment Proof</th>
+                                        <th>Request Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-deposit-requests">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 11: WITHDRAWAL REQUESTS -->
+                <div id="tab-withdraw-req" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-hand-holding-dollar text-rose-600 mr-2"></i> User Withdrawal Requests</span>
+                            <div class="flex gap-2">
+                                <select id="withdraw-filter-status" class="form-select text-xs py-1" onchange="loadWithdrawalRequestsTable()">
+                                    <option value="PENDING">Pending Only</option>
+                                    <option value="APPROVED">Approved Only</option>
+                                    <option value="REJECTED">Rejected Only</option>
+                                    <option value="ALL">All Requests</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Req. ID</th>
+                                        <th>User Details</th>
+                                        <th>Req. Amount</th>
+                                        <th>Available Wallet Balance</th>
+                                        <th>User Payment / UPI Info</th>
+                                        <th>Request Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-withdraw-requests">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 12: ADD / DEDUCT FUND DIRECTLY -->
+                <div id="tab-add-deduct-fund" class="tab-content">
+                    <div class="card max-w-2xl mx-auto">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-money-bill-transfer text-cyan-600 mr-2"></i> Directly Add or Deduct Points to User Wallet</span>
+                        </div>
+
+                        <div class="space-y-4 p-2">
+                            <div>
+                                <label class="form-label">Select User (Search by Mobile or Name)</label>
+                                <select id="wallet-user-select" class="form-select" onchange="onWalletUserSelectChange()">
+                                    <option value="">-- Choose User --</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                <div>
+                                    <span class="text-xs text-slate-500 font-semibold block">User Mobile</span>
+                                    <span class="text-sm font-bold text-slate-800" id="wallet-mod-mobile">---</span>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-slate-500 font-semibold block">Current Wallet Balance</span>
+                                    <span class="text-base font-black text-emerald-600" id="wallet-mod-balance">₹ 0</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Action Type</label>
+                                <select id="wallet-action-type" class="form-select font-bold">
+                                    <option value="ADD" class="text-emerald-600">➕ Add Points (Deposit / Bonus)</option>
+                                    <option value="DEDUCT" class="text-rose-600">➖ Deduct Points (Adjustment / Fine)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Points / Amount (₹)</label>
+                                <input type="number" id="wallet-points-input" class="form-control font-black text-slate-800" placeholder="e.g. 500" min="1">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Remarks / Description</label>
+                                <input type="text" id="wallet-remarks-input" class="form-control" placeholder="e.g. Admin Direct Credit for UPI Payment">
+                            </div>
+
+                            <button onclick="executeAddDeductPoints()" class="btn btn-blue w-full py-2.5 font-bold text-sm shadow-md">
+                                <i class="fa-solid fa-floppy-disk"></i> Submit Balance Update
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 13: MAIN SETTINGS & UPI -->
+                <div id="tab-settings-main" class="tab-content">
+                    <div class="card max-w-3xl mx-auto">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-sliders text-slate-600 mr-2"></i> Main App Settings & Payment UPI Config</span>
+                            <button onclick="saveMainSettingsToFirebase()" class="btn btn-sm btn-success">
+                                <i class="fa-solid fa-check"></i> Save Settings
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Left Settings Column -->
+                            <div class="space-y-3">
+                                <h4 class="font-bold text-xs uppercase text-slate-400 tracking-wider">💳 UPI Gateway Details</h4>
+                                <div>
+                                    <label class="form-label">Merchant Admin UPI ID (e.g. 9876543210@paytm)</label>
+                                    <input type="text" id="set-upi-id" class="form-control font-bold" placeholder="yourname@upi">
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Merchant Name (Display in App)</label>
+                                    <input type="text" id="set-upi-name" class="form-control" placeholder="Aditya Matka Official">
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Support WhatsApp Number</label>
+                                    <input type="text" id="set-support-mobile" class="form-control" placeholder="919876543210">
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Support Telegram Link</label>
+                                    <input type="text" id="set-support-telegram" class="form-control" placeholder="https://t.me/yourchannel">
+                                </div>
+                            </div>
+
+                            <!-- Right Settings Column -->
+                            <div class="space-y-3">
+                                <h4 class="font-bold text-xs uppercase text-slate-400 tracking-wider">⚙️ App Financial Rules</h4>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="form-label">Min Deposit (₹)</label>
+                                        <input type="number" id="set-min-deposit" class="form-control" placeholder="100">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Max Deposit (₹)</label>
+                                        <input type="number" id="set-max-deposit" class="form-control" placeholder="50000">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="form-label">Min Withdraw (₹)</label>
+                                        <input type="number" id="set-min-withdraw" class="form-control" placeholder="500">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Max Withdraw (₹)</label>
+                                        <input type="number" id="set-max-withdraw" class="form-control" placeholder="25000">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">App Notice Board Marquee Text</label>
+                                    <textarea id="set-app-notice" class="form-control text-xs" rows="3" placeholder="Welcome to Aditya Matka App. Play safe and win big!"></textarea>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">App Maintenance Mode</label>
+                                    <select id="set-maintenance-mode" class="form-select">
+                                        <option value="OFF">🟢 Normal Operation (App Live)</option>
+                                        <option value="ON">🔴 Under Maintenance (Disable Bids)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 pt-4 border-t flex justify-end">
+                            <button onclick="saveMainSettingsToFirebase()" class="btn btn-blue font-bold py-2 px-6">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Save & Broadcast Config
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 14: FCM NOTIFICATION MANAGEMENT -->
+                <div id="tab-settings-fcm" class="tab-content">
+                    <div class="card max-w-2xl mx-auto">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-bell text-amber-500 mr-2"></i> Push Notification Broadcast Center</span>
+                        </div>
+
+                        <p class="text-xs text-slate-500 mb-4">Send instant mobile push notifications directly to all registered users who have the app installed on their phones.</p>
+
+                        <div class="space-y-3">
+                            <div>
+                                <label class="form-label">Notification Title</label>
+                                <input type="text" id="fcm-title-input" class="form-control" placeholder="🚀 Kalyan Open Result Declared!">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Notification Message Body</label>
+                                <textarea id="fcm-body-input" class="form-control" rows="4" placeholder="Kalyan Open Result is 288-8. Check your bid history now to view winning credits!"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Optional Image URL</label>
+                                <input type="text" id="fcm-image-input" class="form-control text-xs" placeholder="https://example.com/banner.jpg">
+                            </div>
+
+                            <button onclick="sendBroadcastNotificationNow()" class="btn btn-amber w-full py-2.5 font-bold shadow-md">
+                                <i class="fa-solid fa-paper-plane"></i> Send Push Notification to All Users
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 15: CHANGE ADMIN PASSWORD -->
+                <div id="tab-settings-password" class="tab-content">
+                    <div class="card max-w-md mx-auto">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-key text-rose-500 mr-2"></i> Change Admin Security Password</span>
+                        </div>
+
+                        <div class="space-y-3 p-2">
+                            <div>
+                                <label class="form-label">Current Admin Password</label>
+                                <input type="password" id="pass-current" class="form-control">
+                            </div>
+
+                            <div>
+                                <label class="form-label">New Security Password</label>
+                                <input type="password" id="pass-new" class="form-control">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Confirm New Password</label>
+                                <input type="password" id="pass-confirm" class="form-control">
+                            </div>
+
+                            <button onclick="changeAdminPasswordNow()" class="btn btn-danger w-full py-2.5 font-bold shadow-md">
+                                <i class="fa-solid fa-shield-halved"></i> Update Password
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL 1: ADD / EDIT GAME MARKET -->
+    <div id="modal-market" class="modal-backdrop">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 class="font-extrabold text-sm text-slate-800" id="modal-market-title">Add New Market</h3>
+                <button onclick="closeModal('modal-market')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="modal-body space-y-3">
+                <input type="hidden" id="mkt-id-hidden">
+                <div>
+                    <label class="form-label">Market Name (e.g. KALYAN MORNING)</label>
+                    <input type="text" id="mkt-name-input" class="form-control" placeholder="KALYAN MORNING">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="form-label">Open Time</label>
+                        <input type="time" id="mkt-open-time" class="form-control">
+                    </div>
+                    <div>
+                        <label class="form-label">Close Time</label>
+                        <input type="time" id="mkt-close-time" class="
+                            <!-- TAB 9: WINNING PREDICTION -->
+                <div id="tab-winning-predict" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-chart-line text-purple-600 mr-2"></i> Realtime Winning Prediction Analysis</span>
+                            <div class="flex gap-2">
+                                <select id="predict-market-select" class="form-select text-xs py-1" onchange="loadWinningPredictions()">
+                                    <option value="">-- Select Market --</option>
+                                </select>
+                                <select id="predict-type-select" class="form-select text-xs py-1" onchange="loadWinningPredictions()">
+                                    <option value="SINGLE_DIGIT">Single Digit (0-9)</option>
+                                    <option value="JODI_DIGIT">Jodi Digit (00-99)</option>
+                                    <option value="SINGLE_PANNA">Single Panna</option>
+                                    <option value="DOUBLE_PANNA">Double Panna</option>
+                                    <option value="TRIPLE_PANNA">Triple Panna</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4 text-xs text-blue-800">
+                            <i class="fa-solid fa-circle-info mr-1"></i> Check total exposure and payouts for each digit/number before declaring market results to calculate net profit or loss.
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Number / Ank</th>
+                                        <th>Total Bids Placed</th>
+                                        <th>Total Amount Bet (₹)</th>
+                                        <th>Estimated Win Payout (₹)</th>
+                                        <th>Net Profit / Loss (₹)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-winning-predictions">
+                                    <tr>
+                                        <td colspan="5" class="text-center py-6 text-slate-400">Select a market above to generate real-time exposure calculations.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 10: DEPOSIT REQUESTS -->
+                <div id="tab-deposit-req" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-arrow-down-left-and-arrow-up-right-to-center text-emerald-600 mr-2"></i> Pending & Recent Deposit Requests</span>
+                            <div class="flex gap-2">
+                                <select id="deposit-filter-status" class="form-select text-xs py-1" onchange="loadDepositRequestsTable()">
+                                    <option value="PENDING">Pending Only</option>
+                                    <option value="APPROVED">Approved Only</option>
+                                    <option value="REJECTED">Rejected Only</option>
+                                    <option value="ALL">All Requests</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Req. ID</th>
+                                        <th>User Details</th>
+                                        <th>Amount</th>
+                                        <th>Transaction / UTR ID</th>
+                                        <th>Payment Proof</th>
+                                        <th>Request Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-deposit-requests">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 11: WITHDRAWAL REQUESTS -->
+                <div id="tab-withdraw-req" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-hand-holding-dollar text-rose-600 mr-2"></i> User Withdrawal Requests</span>
+                            <div class="flex gap-2">
+                                <select id="withdraw-filter-status" class="form-select text-xs py-1" onchange="loadWithdrawalRequestsTable()">
+                                    <option value="PENDING">Pending Only</option>
+                                    <option value="APPROVED">Approved Only</option>
+                                    <option value="REJECTED">Rejected Only</option>
+                                    <option value="ALL">All Requests</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Req. ID</th>
+                                        <th>User Details</th>
+                                        <th>Req. Amount</th>
+                                        <th>Available Wallet Balance</th>
+                                        <th>User Payment / UPI Info</th>
+                                        <th>Request Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-withdraw-requests">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 12: ADD / DEDUCT FUND DIRECTLY -->
+                <div id="tab-add-deduct-fund" class="tab-content">
+                    <div class="card max-w-2xl mx-auto">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-money-bill-transfer text-cyan-600 mr-2"></i> Directly Add or Deduct Points to User Wallet</span>
+                        </div>
+
+                        <div class="space-y-4 p-2">
+                            <div>
+                                <label class="form-label">Select User (Search by Mobile or Name)</label>
+                                <select id="wallet-user-select" class="form-select" onchange="onWalletUserSelectChange()">
+                                    <option value="">-- Choose User --</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                <div>
+                                    <span class="text-xs text-slate-500 font-semibold block">User Mobile</span>
+                                    <span class="text-sm font-bold text-slate-800" id="wallet-mod-mobile">---</span>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-slate-500 font-semibold block">Current Wallet Balance</span>
+                                    <span class="text-base font-black text-emerald-600" id="wallet-mod-balance">₹ 0</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Action Type</label>
+                                <select id="wallet-action-type" class="form-select font-bold">
+                                    <option value="ADD" class="text-emerald-600">➕ Add Points (Deposit / Bonus)</option>
+                                    <option value="DEDUCT" class="text-rose-600">➖ Deduct Points (Adjustment / Fine)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Points / Amount (₹)</label>
+                                <input type="number" id="wallet-points-input" class="form-control font-black text-slate-800" placeholder="e.g. 500" min="1">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Remarks / Description</label>
+                                <input type="text" id="wallet-remarks-input" class="form-control" placeholder="e.g. Admin Direct Credit for UPI Payment">
+                            </div>
+
+                            <button onclick="executeAddDeductPoints()" class="btn btn-blue w-full py-2.5 font-bold text-sm shadow-md">
+                                <i class="fa-solid fa-floppy-disk"></i> Submit Balance Update
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 13: MAIN SETTINGS & UPI -->
+                <div id="tab-settings-main" class="tab-content">
+                    <div class="card max-w-3xl mx-auto">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-sliders text-slate-600 mr-2"></i> Main App Settings & Payment UPI Config</span>
+                            <button onclick="saveMainSettingsToFirebase()" class="btn btn-sm btn-success">
+                                <i class="fa-solid fa-check"></i> Save Settings
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Left Settings Column -->
+                            <div class="space-y-3">
+                                <h4 class="font-bold text-xs uppercase text-slate-400 tracking-wider">💳 UPI Gateway Details</h4>
+                                <div>
+                                    <label class="form-label">Merchant Admin UPI ID (e.g. 9876543210@paytm)</label>
+                                    <input type="text" id="set-upi-id" class="form-control font-bold" placeholder="yourname@upi">
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Merchant Name (Display in App)</label>
+                                    <input type="text" id="set-upi-name" class="form-control" placeholder="Aditya Matka Official">
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Support WhatsApp Number</label>
+                                    <input type="text" id="set-support-mobile" class="form-control" placeholder="919876543210">
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Support Telegram Link</label>
+                                    <input type="text" id="set-support-telegram" class="form-control" placeholder="https://t.me/yourchannel">
+                                </div>
+                            </div>
+
+                            <!-- Right Settings Column -->
+                            <div class="space-y-3">
+                                <h4 class="font-bold text-xs uppercase text-slate-400 tracking-wider">⚙️ App Financial Rules</h4>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="form-label">Min Deposit (₹)</label>
+                                        <input type="number" id="set-min-deposit" class="form-control" placeholder="100">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Max Deposit (₹)</label>
+                                        <input type="number" id="set-max-deposit" class="form-control" placeholder="50000">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="form-label">Min Withdraw (₹)</label>
+                                        <input type="number" id="set-min-withdraw" class="form-control" placeholder="500">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Max Withdraw (₹)</label>
+                                        <input type="number" id="set-max-withdraw" class="form-control" placeholder="25000">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">App Notice Board Marquee Text</label>
+                                    <textarea id="set-app-notice" class="form-control text-xs" rows="3" placeholder="Welcome to Aditya Matka App. Play safe and win big!"></textarea>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">App Maintenance Mode</label>
+                                    <select id="set-maintenance-mode" class="form-select">
+                                        <option value="OFF">🟢 Normal Operation (App Live)</option>
+                                        <option value="ON">🔴 Under Maintenance (Disable Bids)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 pt-4 border-t flex justify-end">
+                            <button onclick="saveMainSettingsToFirebase()" class="btn btn-blue font-bold py-2 px-6">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Save & Broadcast Config
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 14: FCM NOTIFICATION MANAGEMENT -->
+                <div id="tab-settings-fcm" class="tab-content">
+                    <div class="card max-w-2xl mx-auto">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-bell text-amber-500 mr-2"></i> Push Notification Broadcast Center</span>
+                        </div>
+
+                        <p class="text-xs text-slate-500 mb-4">Send instant mobile push notifications directly to all registered users who have the app installed on their phones.</p>
+
+                        <div class="space-y-3">
+                            <div>
+                                <label class="form-label">Notification Title</label>
+                                <input type="text" id="fcm-title-input" class="form-control" placeholder="🚀 Kalyan Open Result Declared!">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Notification Message Body</label>
+                                <textarea id="fcm-body-input" class="form-control" rows="4" placeholder="Kalyan Open Result is 288-8. Check your bid history now to view winning credits!"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Optional Image URL</label>
+                                <input type="text" id="fcm-image-input" class="form-control text-xs" placeholder="https://example.com/banner.jpg">
+                            </div>
+
+                            <button onclick="sendBroadcastNotificationNow()" class="btn btn-amber w-full py-2.5 font-bold shadow-md">
+                                <i class="fa-solid fa-paper-plane"></i> Send Push Notification to All Users
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 15: CHANGE ADMIN PASSWORD -->
+                <div id="tab-settings-password" class="tab-content">
+                    <div class="card max-w-md mx-auto">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-key text-rose-500 mr-2"></i> Change Admin Security Password</span>
+                        </div>
+
+                        <div class="space-y-3 p-2">
+                            <div>
+                                <label class="form-label">Current Admin Password</label>
+                                <input type="password" id="pass-current" class="form-control">
+                            </div>
+
+                            <div>
+                                <label class="form-label">New Security Password</label>
+                                <input type="password" id="pass-new" class="form-control">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Confirm New Password</label>
+                                <input type="password" id="pass-confirm" class="form-control">
+                            </div>
+
+                            <button onclick="changeAdminPasswordNow()" class="btn btn-danger w-full py-2.5 font-bold shadow-md">
+                                <i class="fa-solid fa-shield-halved"></i> Update Password
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL 1: ADD / EDIT GAME MARKET -->
+    <div id="modal-market" class="modal-backdrop">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 class="font-extrabold text-sm text-slate-800" id="modal-market-title">Add New Market</h3>
+                <button onclick="closeModal('modal-market')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="modal-body space-y-3">
+                <input type="hidden" id="mkt-id-hidden">
+                <div>
+                    <label class="form-label">Market Name (e.g. KALYAN MORNING)</label>
+                    <input type="text" id="mkt-name-input" class="form-control" placeholder="KALYAN MORNING">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="form-label">Open Time</label>
+                        <input type="time" id="mkt-open-time" class="form-control">
+                    </div>
+                    <div>
+                        <label class="form-label">Close Time</label>
+                        <input type="time" id="mkt-close-time" class="
+                            <!-- TAB 9: WINNING PREDICTION -->
+                <div id="tab-winning-predict" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-chart-line text-purple-600 mr-2"></i> Realtime Winning Prediction Analysis</span>
+                            <div class="flex gap-2">
+                                <select id="predict-market-select" class="form-select text-xs py-1" onchange="loadWinningPredictions()">
+                                    <option value="">-- Select Market --</option>
+                                </select>
+                                <select id="predict-type-select" class="form-select text-xs py-1" onchange="loadWinningPredictions()">
+                                    <option value="SINGLE_DIGIT">Single Digit (0-9)</option>
+                                    <option value="JODI_DIGIT">Jodi Digit (00-99)</option>
+                                    <option value="SINGLE_PANNA">Single Panna</option>
+                                    <option value="DOUBLE_PANNA">Double Panna</option>
+                                    <option value="TRIPLE_PANNA">Triple Panna</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4 text-xs text-blue-800">
+                            <i class="fa-solid fa-circle-info mr-1"></i> Check total exposure and payouts for each digit/number before declaring market results to calculate net profit or loss.
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Number / Ank</th>
+                                        <th>Total Bids Placed</th>
+                                        <th>Total Amount Bet (₹)</th>
+                                        <th>Estimated Win Payout (₹)</th>
+                                        <th>Net Profit / Loss (₹)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-winning-predictions">
+                                    <tr>
+                                        <td colspan="5" class="text-center py-6 text-slate-400">Select a market above to generate real-time exposure calculations.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 10: DEPOSIT REQUESTS -->
+                <div id="tab-deposit-req" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-arrow-down-left-and-arrow-up-right-to-center text-emerald-600 mr-2"></i> Pending & Recent Deposit Requests</span>
+                            <div class="flex gap-2">
+                                <select id="deposit-filter-status" class="form-select text-xs py-1" onchange="loadDepositRequestsTable()">
+                                    <option value="PENDING">Pending Only</option>
+                                    <option value="APPROVED">Approved Only</option>
+                                    <option value="REJECTED">Rejected Only</option>
+                                    <option value="ALL">All Requests</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Req. ID</th>
+                                        <th>User Details</th>
+                                        <th>Amount</th>
+                                        <th>Transaction / UTR ID</th>
+                                        <th>Payment Proof</th>
+                                        <th>Request Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-deposit-requests">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 11: WITHDRAWAL REQUESTS -->
+                <div id="tab-withdraw-req" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-hand-holding-dollar text-rose-600 mr-2"></i> User Withdrawal Requests</span>
+                            <div class="flex gap-2">
+                                <select id="withdraw-filter-status" class="form-select text-xs py-1" onchange="loadWithdrawalRequestsTable()">
+                                    <option value="PENDING">Pending Only</option>
+                                    <option value="APPROVED">Approved Only</option>
+                                    <option value="REJECTED">Rejected Only</option>
+                                    <option value="ALL">All Requests</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Req. ID</th>
+                                        <th>User Details</th>
+                                        <th>Req. Amount</th>
+                                        <th>Available Wallet Balance</th>
+                                        <th>User Payment / UPI Info</th>
+                                        <th>Request Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-withdraw-requests">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 12: ADD / DEDUCT FUND DIRECTLY -->
+                <div id="tab-add-deduct-fund" class="tab-content">
+                    <div class="card max-w-2xl mx-auto">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-money-bill-transfer text-cyan-600 mr-2"></i> Directly Add or Deduct Points to User Wallet</span>
+                        </div>
+
+                        <div class="space-y-4 p-2">
+                            <div>
+                                <label class="form-label">Select User (Search by Mobile or Name)</label>
+                                <select id="wallet-user-select" class="form-select" onchange="onWalletUserSelectChange()">
+                                    <option value="">-- Choose User --</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                <div>
+                                    <span class="text-xs text-slate-500 font-semibold block">User Mobile</span>
+                                    <span class="text-sm font-bold text-slate-800" id="wallet-mod-mobile">---</span>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-slate-500 font-semibold block">Current Wallet Balance</span>
+                                    <span class="text-base font-black text-emerald-600" id="wallet-mod-balance">₹ 0</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Action Type</label>
+                                <select id="wallet-action-type" class="form-select font-bold">
+                                    <option value="ADD" class="text-emerald-600">➕ Add Points (Deposit / Bonus)</option>
+                                    <option value="DEDUCT" class="text-rose-600">➖ Deduct Points (Adjustment / Fine)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Points / Amount (₹)</label>
+                                <input type="number" id="wallet-points-input" class="form-control font-black text-slate-800" placeholder="e.g. 500" min="1">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Remarks / Description</label>
+                                <input type="text" id="wallet-remarks-input" class="form-control" placeholder="e.g. Admin Direct Credit for UPI Payment">
+                            </div>
+
+                            <button onclick="executeAddDeductPoints()" class="btn btn-blue w-full py-2.5 font-bold text-sm shadow-md">
+                                <i class="fa-solid fa-floppy-disk"></i> Submit Balance Update
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 13: MAIN SETTINGS & UPI -->
+                <div id="tab-settings-main" class="tab-content">
+                    <div class="card max-w-3xl mx-auto">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-sliders text-slate-600 mr-2"></i> Main App Settings & Payment UPI Config</span>
+                            <button onclick="saveMainSettingsToFirebase()" class="btn btn-sm btn-success">
+                                <i class="fa-solid fa-check"></i> Save Settings
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Left Settings Column -->
+                            <div class="space-y-3">
+                                <h4 class="font-bold text-xs uppercase text-slate-400 tracking-wider">💳 UPI Gateway Details</h4>
+                                <div>
+                                    <label class="form-label">Merchant Admin UPI ID (e.g. 9876543210@paytm)</label>
+                                    <input type="text" id="set-upi-id" class="form-control font-bold" placeholder="yourname@upi">
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Merchant Name (Display in App)</label>
+                                    <input type="text" id="set-upi-name" class="form-control" placeholder="Aditya Matka Official">
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Support WhatsApp Number</label>
+                                    <input type="text" id="set-support-mobile" class="form-control" placeholder="919876543210">
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Support Telegram Link</label>
+                                    <input type="text" id="set-support-telegram" class="form-control" placeholder="https://t.me/yourchannel">
+                                </div>
+                            </div>
+
+                            <!-- Right Settings Column -->
+                            <div class="space-y-3">
+                                <h4 class="font-bold text-xs uppercase text-slate-400 tracking-wider">⚙️ App Financial Rules</h4>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="form-label">Min Deposit (₹)</label>
+                                        <input type="number" id="set-min-deposit" class="form-control" placeholder="100">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Max Deposit (₹)</label>
+                                        <input type="number" id="set-max-deposit" class="form-control" placeholder="50000">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="form-label">Min Withdraw (₹)</label>
+                                        <input type="number" id="set-min-withdraw" class="form-control" placeholder="500">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Max Withdraw (₹)</label>
+                                        <input type="number" id="set-max-withdraw" class="form-control" placeholder="25000">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">App Notice Board Marquee Text</label>
+                                    <textarea id="set-app-notice" class="form-control text-xs" rows="3" placeholder="Welcome to Aditya Matka App. Play safe and win big!"></textarea>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">App Maintenance Mode</label>
+                                    <select id="set-maintenance-mode" class="form-select">
+                                        <option value="OFF">🟢 Normal Operation (App Live)</option>
+                                        <option value="ON">🔴 Under Maintenance (Disable Bids)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 pt-4 border-t flex justify-end">
+                            <button onclick="saveMainSettingsToFirebase()" class="btn btn-blue font-bold py-2 px-6">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Save & Broadcast Config
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 14: FCM NOTIFICATION MANAGEMENT -->
+                <div id="tab-settings-fcm" class="tab-content">
+                    <div class="card max-w-2xl mx-auto">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-bell text-amber-500 mr-2"></i> Push Notification Broadcast Center</span>
+                        </div>
+
+                        <p class="text-xs text-slate-500 mb-4">Send instant mobile push notifications directly to all registered users who have the app installed on their phones.</p>
+
+                        <div class="space-y-3">
+                            <div>
+                                <label class="form-label">Notification Title</label>
+                                <input type="text" id="fcm-title-input" class="form-control" placeholder="🚀 Kalyan Open Result Declared!">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Notification Message Body</label>
+                                <textarea id="fcm-body-input" class="form-control" rows="4" placeholder="Kalyan Open Result is 288-8. Check your bid history now to view winning credits!"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Optional Image URL</label>
+                                <input type="text" id="fcm-image-input" class="form-control text-xs" placeholder="https://example.com/banner.jpg">
+                            </div>
+
+                            <button onclick="sendBroadcastNotificationNow()" class="btn btn-amber w-full py-2.5 font-bold shadow-md">
+                                <i class="fa-solid fa-paper-plane"></i> Send Push Notification to All Users
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 15: CHANGE ADMIN PASSWORD -->
+                <div id="tab-settings-password" class="tab-content">
+                    <div class="card max-w-md mx-auto">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-key text-rose-500 mr-2"></i> Change Admin Security Password</span>
+                        </div>
+
+                        <div class="space-y-3 p-2">
+                            <div>
+                                <label class="form-label">Current Admin Password</label>
+                                <input type="password" id="pass-current" class="form-control">
+                            </div>
+
+                            <div>
+                                <label class="form-label">New Security Password</label>
+                                <input type="password" id="pass-new" class="form-control">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Confirm New Password</label>
+                                <input type="password" id="pass-confirm" class="form-control">
+                            </div>
+
+                            <button onclick="changeAdminPasswordNow()" class="btn btn-danger w-full py-2.5 font-bold shadow-md">
+                                <i class="fa-solid fa-shield-halved"></i> Update Password
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL 1: ADD / EDIT GAME MARKET -->
+    <div id="modal-market" class="modal-backdrop">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 class="font-extrabold text-sm text-slate-800" id="modal-market-title">Add New Market</h3>
+                <button onclick="closeModal('modal-market')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="modal-body space-y-3">
+                <input type="hidden" id="mkt-id-hidden">
+                <div>
+                    <label class="form-label">Market Name (e.g. KALYAN MORNING)</label>
+                    <input type="text" id="mkt-name-input" class="form-control" placeholder="KALYAN MORNING">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="form-label">Open Time</label>
+                        <input type="time" id="mkt-open-time" class="form-control">
+                    </div>
+                    <div>
+                        <label class="form-label">Close Time</label>
+                        <input type="time" id="mkt-close-time" class="
+                            <!-- TAB 9: WINNING PREDICTION -->
+                <div id="tab-winning-predict" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-chart-line text-purple-600 mr-2"></i> Realtime Winning Prediction Analysis</span>
+                            <div class="flex gap-2">
+                                <select id="predict-market-select" class="form-select text-xs py-1" onchange="loadWinningPredictions()">
+                                    <option value="">-- Select Market --</option>
+                                </select>
+                                <select id="predict-type-select" class="form-select text-xs py-1" onchange="loadWinningPredictions()">
+                                    <option value="SINGLE_DIGIT">Single Digit (0-9)</option>
+                                    <option value="JODI_DIGIT">Jodi Digit (00-99)</option>
+                                    <option value="SINGLE_PANNA">Single Panna</option>
+                                    <option value="DOUBLE_PANNA">Double Panna</option>
+                                    <option value="TRIPLE_PANNA">Triple Panna</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4 text-xs text-blue-800">
+                            <i class="fa-solid fa-circle-info mr-1"></i> Check total exposure and payouts for each digit/number before declaring market results to calculate net profit or loss.
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Number / Ank</th>
+                                        <th>Total Bids Placed</th>
+                                        <th>Total Amount Bet (₹)</th>
+                                        <th>Estimated Win Payout (₹)</th>
+                                        <th>Net Profit / Loss (₹)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-winning-predictions">
+                                    <tr>
+                                        <td colspan="5" class="text-center py-6 text-slate-400">Select a market above to generate real-time exposure calculations.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 10: DEPOSIT REQUESTS -->
+                <div id="tab-deposit-req" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-arrow-down-left-and-arrow-up-right-to-center text-emerald-600 mr-2"></i> Pending & Recent Deposit Requests</span>
+                            <div class="flex gap-2">
+                                <select id="deposit-filter-status" class="form-select text-xs py-1" onchange="loadDepositRequestsTable()">
+                                    <option value="PENDING">Pending Only</option>
+                                    <option value="APPROVED">Approved Only</option>
+                                    <option value="REJECTED">Rejected Only</option>
+                                    <option value="ALL">All Requests</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Req. ID</th>
+                                        <th>User Details</th>
+                                        <th>Amount</th>
+                                        <th>Transaction / UTR ID</th>
+                                        <th>Payment Proof</th>
+                                        <th>Request Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-deposit-requests">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 11: WITHDRAWAL REQUESTS -->
+                <div id="tab-withdraw-req" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-hand-holding-dollar text-rose-600 mr-2"></i> User Withdrawal Requests</span>
+                            <div class="flex gap-2">
+                                <select id="withdraw-filter-status" class="form-select text-xs py-1" onchange="loadWithdrawalRequestsTable()">
+                                    <option value="PENDING">Pending Only</option>
+                                    <option value="APPROVED">Approved Only</option>
+                                    <option value="REJECTED">Rejected Only</option>
+                                    <option value="ALL">All Requests</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Req. ID</th>
+                                        <th>User Details</th>
+                                        <th>Req. Amount</th>
+                                        <th>Available Wallet Balance</th>
+                                        <th>User Payment / UPI Info</th>
+                                        <th>Request Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-withdraw-requests">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 12: ADD / DEDUCT FUND DIRECTLY -->
+                <div id="tab-add-deduct-fund" class="tab-content">
+                    <div class="card max-w-2xl mx-auto">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-money-bill-transfer text-cyan-600 mr-2"></i> Directly Add or Deduct Points to User Wallet</span>
+                        </div>
+
+                        <div class="space-y-4 p-2">
+                            <div>
+                                <label class="form-label">Select User (Search by Mobile or Name)</label>
+                                <select id="wallet-user-select" class="form-select" onchange="onWalletUserSelectChange()">
+                                    <option value="">-- Choose User --</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                <div>
+                                    <span class="text-xs text-slate-500 font-semibold block">User Mobile</span>
+                                    <span class="text-sm font-bold text-slate-800" id="wallet-mod-mobile">---</span>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-slate-500 font-semibold block">Current Wallet Balance</span>
+                                    <span class="text-base font-black text-emerald-600" id="wallet-mod-balance">₹ 0</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Action Type</label>
+                                <select id="wallet-action-type" class="form-select font-bold">
+                                    <option value="ADD" class="text-emerald-600">➕ Add Points (Deposit / Bonus)</option>
+                                    <option value="DEDUCT" class="text-rose-600">➖ Deduct Points (Adjustment / Fine)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Points / Amount (₹)</label>
+                                <input type="number" id="wallet-points-input" class="form-control font-black text-slate-800" placeholder="e.g. 500" min="1">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Remarks / Description</label>
+                                <input type="text" id="wallet-remarks-input" class="form-control" placeholder="e.g. Admin Direct Credit for UPI Payment">
+                            </div>
+
+                            <button onclick="executeAddDeductPoints()" class="btn btn-blue w-full py-2.5 font-bold text-sm shadow-md">
+                                <i class="fa-solid fa-floppy-disk"></i> Submit Balance Update
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 13: MAIN SETTINGS & UPI -->
+                <div id="tab-settings-main" class="tab-content">
+                    <div class="card max-w-3xl mx-auto">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-sliders text-slate-600 mr-2"></i> Main App Settings & Payment UPI Config</span>
+                            <button onclick="saveMainSettingsToFirebase()" class="btn btn-sm btn-success">
+                                <i class="fa-solid fa-check"></i> Save Settings
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Left Settings Column -->
+                            <div class="space-y-3">
+                                <h4 class="font-bold text-xs uppercase text-slate-400 tracking-wider">💳 UPI Gateway Details</h4>
+                                <div>
+                                    <label class="form-label">Merchant Admin UPI ID (e.g. 9876543210@paytm)</label>
+                                    <input type="text" id="set-upi-id" class="form-control font-bold" placeholder="yourname@upi">
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Merchant Name (Display in App)</label>
+                                    <input type="text" id="set-upi-name" class="form-control" placeholder="Aditya Matka Official">
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Support WhatsApp Number</label>
+                                    <input type="text" id="set-support-mobile" class="form-control" placeholder="919876543210">
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Support Telegram Link</label>
+                                    <input type="text" id="set-support-telegram" class="form-control" placeholder="https://t.me/yourchannel">
+                                </div>
+                            </div>
+
+                            <!-- Right Settings Column -->
+                            <div class="space-y-3">
+                                <h4 class="font-bold text-xs uppercase text-slate-400 tracking-wider">⚙️ App Financial Rules</h4>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="form-label">Min Deposit (₹)</label>
+                                        <input type="number" id="set-min-deposit" class="form-control" placeholder="100">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Max Deposit (₹)</label>
+                                        <input type="number" id="set-max-deposit" class="form-control" placeholder="50000">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="form-label">Min Withdraw (₹)</label>
+                                        <input type="number" id="set-min-withdraw" class="form-control" placeholder="500">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Max Withdraw (₹)</label>
+                                        <input type="number" id="set-max-withdraw" class="form-control" placeholder="25000">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">App Notice Board Marquee Text</label>
+                                    <textarea id="set-app-notice" class="form-control text-xs" rows="3" placeholder="Welcome to Aditya Matka App. Play safe and win big!"></textarea>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">App Maintenance Mode</label>
+                                    <select id="set-maintenance-mode" class="form-select">
+                                        <option value="OFF">🟢 Normal Operation (App Live)</option>
+                                        <option value="ON">🔴 Under Maintenance (Disable Bids)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 pt-4 border-t flex justify-end">
+                            <button onclick="saveMainSettingsToFirebase()" class="btn btn-blue font-bold py-2 px-6">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Save & Broadcast Config
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 14: FCM NOTIFICATION MANAGEMENT -->
+                <div id="tab-settings-fcm" class="tab-content">
+                    <div class="card max-w-2xl mx-auto">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-bell text-amber-500 mr-2"></i> Push Notification Broadcast Center</span>
+                        </div>
+
+                        <p class="text-xs text-slate-500 mb-4">Send instant mobile push notifications directly to all registered users who have the app installed on their phones.</p>
+
+                        <div class="space-y-3">
+                            <div>
+                                <label class="form-label">Notification Title</label>
+                                <input type="text" id="fcm-title-input" class="form-control" placeholder="🚀 Kalyan Open Result Declared!">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Notification Message Body</label>
+                                <textarea id="fcm-body-input" class="form-control" rows="4" placeholder="Kalyan Open Result is 288-8. Check your bid history now to view winning credits!"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Optional Image URL</label>
+                                <input type="text" id="fcm-image-input" class="form-control text-xs" placeholder="https://example.com/banner.jpg">
+                            </div>
+
+                            <button onclick="sendBroadcastNotificationNow()" class="btn btn-amber w-full py-2.5 font-bold shadow-md">
+                                <i class="fa-solid fa-paper-plane"></i> Send Push Notification to All Users
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 15: CHANGE ADMIN PASSWORD -->
+                <div id="tab-settings-password" class="tab-content">
+                    <div class="card max-w-md mx-auto">
+                        <div class="card-title">
+                            <span><i class="fa-solid fa-key text-rose-500 mr-2"></i> Change Admin Security Password</span>
+                        </div>
+
+                        <div class="space-y-3 p-2">
+                            <div>
+                                <label class="form-label">Current Admin Password</label>
+                                <input type="password" id="pass-current" class="form-control">
+                            </div>
+
+                            <div>
+                                <label class="form-label">New Security Password</label>
+                                <input type="password" id="pass-new" class="form-control">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Confirm New Password</label>
+                                <input type="password" id="pass-confirm" class="form-control">
+                            </div>
+
+                            <button onclick="changeAdminPasswordNow()" class="btn btn-danger w-full py-2.5 font-bold shadow-md">
+                                <i class="fa-solid fa-shield-halved"></i> Update Password
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL 1: ADD / EDIT GAME MARKET -->
+    <div id="modal-market" class="modal-backdrop">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 class="font-extrabold text-sm text-slate-800" id="modal-market-title">Add New Market</h3>
+                <button onclick="closeModal('modal-market')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="modal-body space-y-3">
+                <input type="hidden" id="mkt-id-hidden">
+                <div>
+                    <label class="form-label">Market Name (e.g. KALYAN MORNING)</label>
+                    <input type="text" id="mkt-name-input" class="form-control" placeholder="KALYAN MORNING">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="form-label">Open Time</label>
+                        <input type="time" id="mkt-open-time" class="form-control">
+                    </div>
+                    <div>
+                        <label class="form-label">Close Time</label>
+                        <input type="time" id="mkt-close-time" class="
+                            <script type="module">
+        // Import Firebase SDK (Use standard v9 syntax)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getDatabase, ref, onValue, update, remove, set, get, push } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // -- Global App State --
+        let currentUser = null;
+
+        // -- Authentication Logic --
+        window.handleAdminLogin = () => {
+            const user = document.getElementById('login-username').value;
+            const pass = document.getElementById('login-password').value;
+            // Validate against Firebase or Hardcoded for demo
+            if(user === "admin" && pass === "asmita#7460") {
+                currentUser = "admin";
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('dashboard-wrapper').classList.remove('hidden');
+                showTab('tab-dashboard');
+                loadDashboardStats();
+            } else {
+                alert("Invalid Credentials");
+            }
+        };
+
+        // -- Dashboard Stats Loading --
+        function loadDashboardStats() {
+            const statsRef = ref(db, 'stats');
+            onValue(statsRef, (snapshot) => {
+                const data = snapshot.val();
+                if(data) {
+                    document.getElementById('stat-total-users').innerText = data.totalUsers || 0;
+                    document.getElementById('stat-today-deposit').innerText = `₹ ${data.todayDeposit || 0}`;
+                    document.getElementById('stat-today-withdraw').innerText = `₹ ${data.todayWithdraw || 0}`;
+                }
             });
         }
+
+        // -- Helper: Navigation --
+        window.showTab = (tabId) => {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            // Close mobile menu if open
+            if(window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+            }
+        };
+
+        window.toggleSidebar = () => {
+            const sb = document.getElementById('sidebar');
+            sb.classList.toggle('-translate-x-full');
+        };
+
+        // -- Result Declaration Logic --
+        window.declareMarketResult = async () => {
+            // Logic for triggering result and FCM notification
+            alert("Result Declared Successfully!");
+            // Implementation for calling notification API would go here
+        };
+
+        // Initialize on load
+        window.onload = () => {
+            console.log("Admin Dashboard Loaded.");
+        };
     </script>
 </body>
-</html>
+            </html>
