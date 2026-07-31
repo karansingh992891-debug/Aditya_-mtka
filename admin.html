@@ -1467,6 +1467,34 @@ window.rejectWithdrawal = async (reqId, userId, amount) => {
     await set(userWalletRef, currentBalance + parseFloat(amount));
     alert("Withdrawal Rejected & Amount Refunded!");
 };
+              // -- User Wallet Edit Logic --
+window.updateUserWallet = async (userId, amount, type) => {
+    // confirmation message
+    const actionText = type === 'add' ? 'जोड़ना' : 'काटना';
+    if (!confirm(`क्या आप वाकई यूजर के वॉलेट में पैसे ${actionText} चाहते हैं?`)) return;
+
+    // Database Reference
+    const userWalletRef = ref(db, 'users/' + userId + '/wallet');
+    
+    // Get current balance
+    const userSnapshot = await get(userWalletRef);
+    const currentBalance = parseFloat(userSnapshot.val() || 0);
+    let newBalance = 0;
+
+    // Logic: Add or Deduct
+    if (type === 'add') {
+        newBalance = currentBalance + parseFloat(amount);
+    } else if (type === 'deduct') {
+        newBalance = currentBalance - parseFloat(amount);
+    } else {
+        alert("Invalid Action!");
+        return;
+    }
+
+    // Save to Database
+    await set(userWalletRef, newBalance);
+    alert(`Wallet ${type === 'add' ? 'बढ़ा दिया गया है' : 'घटा दिया गया है'}! नया बैलेंस: ${newBalance}`);
+};
              
 
         // -- Updated Result Declaration Logic --
