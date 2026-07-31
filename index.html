@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aditya Matka Official</title>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
     <style>
         * {
             box-sizing: border-box;
@@ -458,7 +463,7 @@
             </div>
         </div>
     </div>
-  <!-- HOME DASHBOARD -->
+    <!-- HOME DASHBOARD -->
     <div id="home-screen" class="dashboard-container" style="display: none;">
         <div class="top-bar">
             <div class="menu-btn" onclick="openModal('menu-modal')">☰</div>
@@ -609,7 +614,7 @@
             <span class="close-modal" onclick="closeModal('bids-modal')">✕</span>
             <h3 style="color: #e0005a; margin-bottom: 10px;">📄 My Bids History</h3>
             <div id="bids-list-container">
-                <p style="text-align: center; color: #999; font-size: 13px;">कोई बिड (Bid) नहीं लगाई गई है।</p>
+                <p style="text-align: center; color: #999; font-size: 13px;">लोड हो रहा है...</p>
             </div>
         </div>
     </div>
@@ -620,7 +625,7 @@
             <span class="close-modal" onclick="closeModal('passbook-modal')">✕</span>
             <h3 style="color: #e0005a; margin-bottom: 10px;">📖 Wallet Passbook</h3>
             <div id="passbook-list-container">
-                <p style="text-align: center; color: #999; font-size: 13px;">कोई लेनदेन दर्ज नहीं है।</p>
+                <p style="text-align: center; color: #999; font-size: 13px;">लोड हो रहा है...</p>
             </div>
         </div>
     </div>
@@ -635,30 +640,54 @@
                 <button class="btn-pink" style="background: #1e293b;" onclick="closeModal('menu-modal'); openModal('add-fund-modal');">💳 Deposit Points</button>
                 <button class="btn-pink" style="background: #1e293b;" onclick="closeModal('menu-modal'); openModal('withdraw-modal');">📤 Withdrawal</button>
                 <button class="btn-pink" style="background: #1e293b;" onclick="closeModal('menu-modal'); openModal('passbook-modal');">📖 Passbook</button>
-                <button class="btn-pink" style="background: #c59b27;" onclick="location.reload();">Logout</button>
+                <button class="btn-pink" style="background: #c59b27;" onclick="handleLogout()">Logout</button>
             </div>
         </div>
     </div>
-  <!-- JAVASCRIPT LOGIC -->
+    <!-- JAVASCRIPT & FIREBASE INTEGRATION LOGIC -->
     <script>
-        let walletBalance = parseInt(localStorage.getItem('user_wallet')) || 0;
-        let registeredUsers = JSON.parse(localStorage.getItem('app_users')) || [];
-        let userBids = JSON.parse(localStorage.getItem('user_bids')) || [];
-        let passbook = JSON.parse(localStorage.getItem('user_passbook')) || [];
+        // 🔹 1. अपनी Firebase Credentials यहाँ दर्ज करें
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Firebase Initialize
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let currentPhone = localStorage.getItem('user_phone') || null;
+        let walletBalance = 0;
         let currentGameSelected = "";
 
         window.onload = function() {
-            updateWalletUI();
+            if (currentPhone) {
+                showScreen('home');
+                initUserRealtimeData();
+            } else {
+                showScreen('login');
+            }
         };
 
-        function updateWalletUI() {
-            document.getElementById('wallet-display').innerText = `💳 ₹${walletBalance}`;
-            localStorage.setItem('user_wallet', walletBalance);
-        }
+        // 🔄 Realtime Balance & User Sync
+        function initUserRealtimeData() {
+            if (!currentPhone) return;
 
-        function addPassbookEntry(title, amount, type) {
-            passbook.unshift({ title, amount, type, date: new Date().toLocaleTimeString() });
-            localStorage.setItem('user_passbook', JSON.stringify(passbook));
+            // Sync User Balance Realtime
+            db.ref('users/' + currentPhone).on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    walletBalance = data.balance || 0;
+                    document.getElementById('wallet-display').innerText = `💳 ₹${walletBalance}`;
+                } else {
+                    handleLogout();
+                }
+            });
         }
 
         function showScreen(screen) {
@@ -674,93 +703,129 @@
             }
         }
 
+        // 👤 REGISTER USER TO FIREBASE DB
         function handleRegister() {
-            let name = document.getElementById('reg-name').value;
-            let phone = document.getElementById('reg-phone').value;
-            let pass = document.getElementById('reg-pass').value;
+            let name = document.getElementById('reg-name').value.trim();
+            let phone = document.getElementById('reg-phone').value.trim();
+            let pass = document.getElementById('reg-pass').value.trim();
 
             if(!name || !phone || !pass) {
                 alert("कृपया पूरी जानकारी भरें!");
                 return;
             }
 
-            registeredUsers.push({ name, phone, pass });
-            localStorage.setItem('app_users', JSON.stringify(registeredUsers));
-
-            alert("आपकी ID सफलतापूर्वक बन गई है!");
-            showScreen('home');
+            const userRef = db.ref('users/' + phone);
+            userRef.get().then((snapshot) => {
+                if(snapshot.exists()){
+                    alert("यह मोबाइल नंबर पहले से रजिस्टर्ड है!");
+                } else {
+                    userRef.set({
+                        name: name,
+                        phone: phone,
+                        password: pass,
+                        balance: 0,
+                        createdAt: new Date().toLocaleString()
+                    }).then(() => {
+                        alert("आपकी ID सफलतापूर्वक बन गई है!");
+                        currentPhone = phone;
+                        localStorage.setItem('user_phone', phone);
+                        showScreen('home');
+                        initUserRealtimeData();
+                    });
+                }
+            });
         }
 
+        // 🔑 LOGIN USER FROM FIREBASE DB
         function handleLogin() {
-            let phone = document.getElementById('login-phone').value;
-            let pass = document.getElementById('login-pass').value;
+            let phone = document.getElementById('login-phone').value.trim();
+            let pass = document.getElementById('login-pass').value.trim();
 
             if(!phone || !pass) {
                 alert("मोबाइल नंबर और पासवर्ड डालें!");
                 return;
             }
 
-            showScreen('home');
+            db.ref('users/' + phone).get().then((snapshot) => {
+                if(snapshot.exists()) {
+                    let user = snapshot.val();
+                    if(user.password === pass) {
+                        currentPhone = phone;
+                        localStorage.setItem('user_phone', phone);
+                        showScreen('home');
+                        initUserRealtimeData();
+                    } else {
+                        alert("गलत पासवर्ड दर्ज किया है!");
+                    }
+                } else {
+                    alert("यह नंबर रजिस्टर्ड नहीं है! साइन अप करें।");
+                }
+            });
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('user_phone');
+            currentPhone = null;
+            location.reload();
         }
 
         function openModal(id) { 
             document.getElementById(id).style.display = 'flex'; 
-            if(id === 'bids-modal') renderBids();
-            if(id === 'passbook-modal') renderPassbook();
+            if(id === 'bids-modal') fetchBidsHistory();
+            if(id === 'passbook-modal') fetchPassbookHistory();
         }
 
         function closeModal(id) { 
             document.getElementById(id).style.display = 'none'; 
         }
 
+        // 💰 SUBMIT ADD FUND REQUEST
         function submitAddFund() {
             let amt = parseInt(document.getElementById('fund-amount').value);
-            let utr = document.getElementById('fund-utr').value;
+            let utr = document.getElementById('fund-utr').value.trim();
 
-            if(!amt || amt < 100) {
-                alert("कम से कम ₹100 का फंड ऐड करें!");
-                return;
-            }
-            if(!utr || utr.length < 10) {
-                alert("सही 12-अंकों का UTR नंबर डालें!");
-                return;
-            }
+            if(!amt || amt < 100) return alert("कम से कम ₹100 का फंड ऐड करें!");
+            if(!utr || utr.length < 10) return alert("सही 12-अंकों का UTR नंबर डालें!");
 
-            walletBalance += amt;
-            updateWalletUI();
-            addPassbookEntry("Deposit (UTR: " + utr + ")", "+₹" + amt, "credit");
-            
-            alert(`सफलतापूर्वक ₹${amt} पॉइंट्स आपके अकाउंट में जोड़ दिए गए हैं!`);
-            document.getElementById('fund-amount').value = "";
-            document.getElementById('fund-utr').value = "";
-            closeModal('add-fund-modal');
+            db.ref('requests').push({
+                userPhone: currentPhone,
+                amount: amt,
+                utr: utr,
+                type: 'deposit',
+                status: 'pending',
+                time: new Date().toLocaleString()
+            }).then(() => {
+                addPassbookEntry("Deposit Requested (UTR: " + utr + ")", "+₹" + amt, "credit");
+                alert(`₹${amt} डिपॉज़िट की रिक्वेस्ट एडमिन को भेज दी गई है!`);
+                document.getElementById('fund-amount').value = "";
+                document.getElementById('fund-utr').value = "";
+                closeModal('add-fund-modal');
+            });
         }
 
+        // 📤 SUBMIT WITHDRAWAL REQUEST
         function submitWithdrawal() {
             let amt = parseInt(document.getElementById('withdraw-amount').value);
-            let details = document.getElementById('withdraw-details').value;
+            let details = document.getElementById('withdraw-details').value.trim();
 
-            if(!amt || amt < 300) {
-                alert("कम से कम ₹300 का विथड्रॉल कर सकते हैं!");
-                return;
-            }
-            if(amt > walletBalance) {
-                alert("आपके वॉलेट में पर्याप्त बैलेंस नहीं है!");
-                return;
-            }
-            if(!details) {
-                alert("अपनी UPI ID या अकाउंट नंबर दर्ज करें!");
-                return;
-            }
+            if(!amt || amt < 300) return alert("कम से कम ₹300 का विथड्रॉल कर सकते हैं!");
+            if(amt > walletBalance) return alert("पर्याप्त वॉलेट बैलेंस नहीं है!");
+            if(!details) return alert("अपनी UPI ID दर्ज करें!");
 
-            walletBalance -= amt;
-            updateWalletUI();
-            addPassbookEntry("Withdrawal (" + details + ")", "-₹" + amt, "debit");
-
-            alert(`₹${amt} के विथड्रॉल की रिक्वेस्ट भेज दी गई है।`);
-            document.getElementById('withdraw-amount').value = "";
-            document.getElementById('withdraw-details').value = "";
-            closeModal('withdraw-modal');
+            db.ref('requests').push({
+                userPhone: currentPhone,
+                amount: amt,
+                details: details,
+                type: 'withdrawal',
+                status: 'pending',
+                time: new Date().toLocaleString()
+            }).then(() => {
+                addPassbookEntry("Withdrawal Request (" + details + ")", "-₹" + amt, "debit");
+                alert(`₹${amt} का विथड्रॉल रिक्वेस्ट भेज दिया गया है।`);
+                document.getElementById('withdraw-amount').value = "";
+                document.getElementById('withdraw-details').value = "";
+                closeModal('withdraw-modal');
+            });
         }
 
         function openPlayModal(gameName) {
@@ -769,83 +834,104 @@
             openModal('play-modal');
         }
 
+        // 🎲 SUBMIT BID (BET) TO DATABASE
         function submitBid() {
             let type = document.getElementById('bid-type').value;
-            let digit = document.getElementById('bid-digit').value;
+            let digit = document.getElementById('bid-digit').value.trim();
             let amt = parseInt(document.getElementById('bid-amount').value);
 
-            if(!digit) {
-                alert("डिजिट या पाना नंबर दर्ज करें!");
-                return;
-            }
-            if(!amt || amt < 10) {
-                alert("कम से कम ₹10 की बिड (Bet) लगाएँ!");
-                return;
-            }
-            if(amt > walletBalance) {
-                alert("पर्याप्त बैलेंस नहीं है! कृपया Wallet में पॉइंट्स ऐड करें।");
-                return;
-            }
+            if(!digit) return alert("डिजिट या पाना नंबर दर्ज करें!");
+            if(!amt || amt < 10) return alert("कम से कम ₹10 की बिड लगाएँ!");
+            if(amt > walletBalance) return alert("पर्याप्त बैलेंस नहीं है! Wallet में पॉइंट्स ऐड करें।");
 
-            walletBalance -= amt;
-            updateWalletUI();
+            // Deduct Points
+            let newBal = walletBalance - amt;
+            db.ref('users/' + currentPhone + '/balance').set(newBal).then(() => {
+                // Store Bid Details
+                db.ref('bids').push({
+                    userPhone: currentPhone,
+                    game: currentGameSelected,
+                    type: type,
+                    digit: digit,
+                    amount: amt,
+                    time: new Date().toLocaleString()
+                });
 
-            userBids.unshift({
-                game: currentGameSelected,
-                type: type,
-                digit: digit,
-                amount: amt,
-                time: new Date().toLocaleTimeString()
+                addPassbookEntry("Bid: " + currentGameSelected + " (" + digit + ")", "-₹" + amt, "debit");
+
+                alert(`आपकी ₹${amt} की बिड ${currentGameSelected} (${digit}) पर लग गई है!`);
+                document.getElementById('bid-digit').value = "";
+                document.getElementById('bid-amount').value = "";
+                closeModal('play-modal');
             });
-            localStorage.setItem('user_bids', JSON.stringify(userBids));
-
-            addPassbookEntry("Bid: " + currentGameSelected + " (" + digit + ")", "-₹" + amt, "debit");
-
-            alert(`आपकी ₹${amt} की बिड ${currentGameSelected} (${digit}) पर सफलतापूर्वक लग गई है!`);
-            document.getElementById('bid-digit').value = "";
-            document.getElementById('bid-amount').value = "";
-            closeModal('play-modal');
         }
 
-        function renderBids() {
+        // 📖 PASSBOOK ENTRY HELPER
+        function addPassbookEntry(title, amount, type) {
+            db.ref('passbook/' + currentPhone).push({
+                title: title,
+                amount: amount,
+                type: type,
+                date: new Date().toLocaleTimeString()
+            });
+        }
+
+        // 📄 FETCH BIDS HISTORY
+        function fetchBidsHistory() {
             const container = document.getElementById('bids-list-container');
-            if(userBids.length === 0) {
-                container.innerHTML = `<p style="text-align: center; color: #999; font-size: 13px;">कोई बिड (Bid) नहीं लगाई गई है।</p>`;
-                return;
-            }
-            container.innerHTML = userBids.map(b => `
-                <div class="history-item">
-                    <div>
-                        <strong>${b.game}</strong><br>
-                        <small style="color:#666;">${b.type} | Digit: <strong>${b.digit}</strong></small>
-                    </div>
-                    <div style="text-align:right;">
-                        <span style="color:#e0005a; font-weight:bold;">₹${b.amount}</span><br>
-                        <small style="color:#999;">${b.time}</small>
-                    </div>
-                </div>
-            `).join('');
+            db.ref('bids').orderByChild('userPhone').equalTo(currentPhone).get().then((snapshot) => {
+                if(!snapshot.exists()) {
+                    container.innerHTML = `<p style="text-align: center; color: #999; font-size: 13px;">कोई बिड नहीं लगाई गई है।</p>`;
+                    return;
+                }
+                let html = "";
+                snapshot.forEach(child => {
+                    let b = child.val();
+                    html = `
+                        <div class="history-item">
+                            <div>
+                                <strong>${b.game}</strong><br>
+                                <small style="color:#666;">${b.type} | Digit: <strong>${b.digit}</strong></small>
+                            </div>
+                            <div style="text-align:right;">
+                                <span style="color:#e0005a; font-weight:bold;">₹${b.amount}</span><br>
+                                <small style="color:#999;">${b.time}</small>
+                            </div>
+                        </div>
+                    ` + html;
+                });
+                container.innerHTML = html;
+            });
         }
 
-        function renderPassbook() {
+        // 📖 FETCH PASSBOOK HISTORY
+        function fetchPassbookHistory() {
             const container = document.getElementById('passbook-list-container');
-            if(passbook.length === 0) {
-                container.innerHTML = `<p style="text-align: center; color: #999; font-size: 13px;">कोई लेनदेन दर्ज नहीं है।</p>`;
-                return;
-            }
-            container.innerHTML = passbook.map(p => `
-                <div class="history-item">
-                    <div>
-                        <strong>${p.title}</strong><br>
-                        <small style="color:#999;">${p.date}</small>
-                    </div>
-                    <div style="text-align:right; font-weight:bold; color: ${p.type === 'credit' ? '#22c55e' : '#e0005a'};">
-                        ${p.amount}
-                    </div>
-                </div>
-            `).join('');
+            db.ref('passbook/' + currentPhone).get().then((snapshot) => {
+                if(!snapshot.exists()) {
+                    container.innerHTML = `<p style="text-align: center; color: #999; font-size: 13px;">कोई लेनदेन दर्ज नहीं है।</p>`;
+                    return;
+                }
+                let html = "";
+                snapshot.forEach(child => {
+                    let p = child.val();
+                    html = `
+                        <div class="history-item">
+                            <div>
+                                <strong>${p.title}</strong><br>
+                                <small style="color:#999;">${p.date}</small>
+                            </div>
+                            <div style="text-align:right; font-weight:bold; color: ${p.type === 'credit' ? '#22c55e' : '#e0005a'};">
+                                ${p.amount}
+                            </div>
+                        </div>
+                    ` + html;
+                });
+                container.innerHTML = html;
+            });
         }
 
+        // 🎮 GAMES DATA
         const gamesData = [
             { name: "SANGAM MORNING", result: "***-**-***", openTime: "09:00 AM", closeTime: "10:00 AM", isOpen: true },
             { name: "KARNATAKA DAY", result: "***-**-***", openTime: "09:50 AM", closeTime: "10:50 AM", isOpen: true },
@@ -857,16 +943,7 @@
             { name: "MADHUR DAY", result: "***-**-***", openTime: "01:30 PM", closeTime: "02:30 PM", isOpen: true },
             { name: "MILAN DAY", result: "***-**-***", openTime: "03:05 PM", closeTime: "05:05 PM", isOpen: true },
             { name: "RAJDHANI DAY", result: "***-**-***", openTime: "03:05 PM", closeTime: "05:05 PM", isOpen: true },
-            { name: "SANGAM DAY", result: "***-**-***", openTime: "03:15 PM", closeTime: "05:20 PM", isOpen: true },
-            { name: "SUPERME DAY", result: "***-**-***", openTime: "03:35 PM", closeTime: "05:35 PM", isOpen: true },
             { name: "KALYAN", result: "***-**-***", openTime: "03:50 PM", closeTime: "05:50 PM", isOpen: true },
-            { name: "SANGAM NIGHT", result: "***-**-***", openTime: "06:50 PM", closeTime: "07:50 PM", isOpen: true },
-            { name: "SRIDEVI NIGHT", result: "***-**-***", openTime: "07:10 PM", closeTime: "08:10 PM", isOpen: true },
-            { name: "MADHUR NIGHT", result: "***-**-***", openTime: "08:25 PM", closeTime: "10:25 PM", isOpen: true },
-            { name: "SUPREME NIGHT", result: "***-**-***", openTime: "08:40 PM", closeTime: "10:40 PM", isOpen: true },
-            { name: "MILAN NIGHT", result: "***-**-***", openTime: "09:05 PM", closeTime: "11:05 PM", isOpen: true },
-            { name: "RAJDHANI NIGHT", result: "***-**-***", openTime: "09:35 PM", closeTime: "11:35 PM", isOpen: true },
-            { name: "KALYAN NIGHT", result: "***-**-***", openTime: "09:40 PM", closeTime: "11:40 PM", isOpen: true },
             { name: "MAIN BAZAR", result: "***-**-***", openTime: "09:50 PM", closeTime: "11:50 PM", isOpen: true }
         ];
 
@@ -900,3 +977,4 @@
     </script>
 </body>
 </html>
+    
