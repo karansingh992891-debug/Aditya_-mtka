@@ -1,22 +1,181 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aditya Matka - Admin Panel</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        * { box-sizing: border-box; font-family: sans-serif; margin: 0; padding: 0; }
+        body { background: #f4f6f9; padding: 15px; }
+        .header { background: #1e293b; color: white; padding: 15px; text-align: center; border-radius: 8px; font-weight: bold; font-size: 20px; margin-bottom: 20px; }
+        .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h2 { font-size: 16px; margin-bottom: 12px; border-bottom: 2px solid #e0005a; padding-bottom: 5px; color: #1e293b; }
+        .req-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 8px; border-radius: 6px; }
+        .req-info { font-size: 13px; color: #334155; }
+        .req-info strong { font-size: 14px; color: #0f172a; }
+        .btn-approve { background: #22c55e; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .btn-reject { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-left: 5px; }
+    </style>
+</head>
+<body>
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyD1r9auYHIt861GSomNFlviHDe0wu41MUk",
-  authDomain: "aditya-matka-a605f.firebaseapp.com",
-  databaseURL: "https://aditya-matka-a605f-default-rtdb.firebaseio.com",
-  projectId: "aditya-matka-a605f",
-  storageBucket: "aditya-matka-a605f.firebasestorage.app",
-  messagingSenderId: "127854755006",
-  appId: "1:127854755006:web:49f9739048ed69f97332ef",
-  measurementId: "G-BF7N36XLR4"
-};
+    <div class="header">👑 Aditya Matka Admin Panel</div>
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+    <!-- Deposit Requests -->
+    <div class="card">
+        <h2>💰 Add Fund Requests (डिपॉज़िट)</h2>
+        <div id="deposit-list">लोड हो रहा है...</div>
+    </div>
+
+    <!-- Withdrawal Requests -->
+    <div class="card">
+        <h2>📤 Withdrawal Requests (विथड्रॉल)</h2>
+        <div id="withdraw-list">लोड हो रहा है...</div>
+    </div>
+
+    <!-- Registered Users List -->
+    <div class="card">
+        <h2>👥 सभी यूज़र्स (Users List)</h2>
+        <div id="users-list">लोड हो रहा है...</div>
+    </div>
+
+    <script>
+        // 🔹 Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD1r9auYHIt861GSomNFLviHDe0wu41MUk",
+            authDomain: "aditya-matka-a605f.firebaseapp.com",
+            databaseURL: "https://aditya-matka-a605f-default-rtdb.firebaseio.com",
+            projectId: "aditya-matka-a605f",
+            storageBucket: "aditya-matka-a605f.firebasestorage.app",
+            messagingSenderId: "127854755006",
+            appId: "1:127854755006:web:49f9739048ed69f97332ef"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        window.onload = function() {
+            loadRequests();
+            loadUsers();
+        };
+
+        // 🔄 Request Loaders
+        function loadRequests() {
+            db.ref('requests').on('value', (snapshot) => {
+                const depContainer = document.getElementById('deposit-list');
+                const withContainer = document.getElementById('withdraw-list');
+                
+                depContainer.innerHTML = "";
+                withContainer.innerHTML = "";
+
+                if (!snapshot.exists()) {
+                    depContainer.innerHTML = "<p style='font-size:13px; color:#999;'>कोई डिपॉज़िट रिक्वेस्ट नहीं है।</p>";
+                    withContainer.innerHTML = "<p style='font-size:13px; color:#999;'>कोई विथड्रॉल रिक्वेस्ट नहीं है।</p>";
+                    return;
+                }
+
+                let hasDep = false, hasWith = false;
+
+                snapshot.forEach((child) => {
+                    let key = child.key;
+                    let req = child.val();
+
+                    if (req.status === 'pending') {
+                        if (req.type === 'deposit') {
+                            hasDep = true;
+                            depContainer.innerHTML += `
+                                <div class="req-item">
+                                    <div class="req-info">
+                                        <strong>📱 ${req.userPhone}</strong><br>
+                                        राशि: <span style="color:#22c55e; font-weight:bold;">₹${req.amount}</span><br>
+                                        UTR: <strong>${req.utr}</strong><br>
+                                        <small style="color:#999;">${req.time}</small>
+                                    </div>
+                                    <div>
+                                        <button class="btn-approve" onclick="approveDeposit('${key}', '${req.userPhone}', ${req.amount})">Approve</button>
+                                        <button class="btn-reject" onclick="rejectRequest('${key}')">Reject</button>
+                                    </div>
+                                </div>
+                            `;
+                        } else if (req.type === 'withdrawal') {
+                            hasWith = true;
+                            withContainer.innerHTML += `
+                                <div class="req-item">
+                                    <div class="req-info">
+                                        <strong>📱 ${req.userPhone}</strong><br>
+                                        राशि: <span style="color:#ef4444; font-weight:bold;">₹${req.amount}</span><br>
+                                        UPI/Details: <strong>${req.details}</strong><br>
+                                        <small style="color:#999;">${req.time}</small>
+                                    </div>
+                                    <div>
+                                        <button class="btn-approve" onclick="approveWithdrawal('${key}')">Approve</button>
+                                        <button class="btn-reject" onclick="rejectRequest('${key}')">Reject</button>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+                });
+
+                if(!hasDep) depContainer.innerHTML = "<p style='font-size:13px; color:#999;'>कोई पेंडिंग डिपॉज़िट नहीं है।</p>";
+                if(!hasWith) withContainer.innerHTML = "<p style='font-size:13px; color:#999;'>कोई पेंडिंग विथड्रॉल नहीं है।</p>";
+            });
+        }
+
+        // ✅ APPROVE DEPOSIT (Add Balance to User)
+        function approveDeposit(reqKey, phone, amount) {
+            db.ref('users/' + phone + '/balance').get().then((snapshot) => {
+                let currentBal = snapshot.exists() ? snapshot.val() : 0;
+                let newBal = currentBal + amount;
+
+                db.ref('users/' + phone + '/balance').set(newBal).then(() => {
+                    db.ref('requests/' + reqKey + '/status').set('approved');
+                    alert(`₹${amount} सफलतापूर्वक ${phone} के वॉलेट में जोड़ दिए गए हैं!`);
+                });
+            });
+        }
+
+        // ✅ APPROVE WITHDRAWAL
+        function approveWithdrawal(reqKey) {
+            db.ref('requests/' + reqKey + '/status').set('approved');
+            alert("विथड्रॉल अप्रूव हो गया!");
+        }
+
+        // ❌ REJECT REQUEST
+        function rejectRequest(reqKey) {
+            db.ref('requests/' + reqKey + '/status').set('rejected');
+            alert("रिक्वेस्ट रिजेक्ट कर दी गई है।");
+        }
+
+        // 👥 LOAD ALL USERS
+        function loadUsers() {
+            db.ref('users').on('value', (snapshot) => {
+                const container = document.getElementById('users-list');
+                container.innerHTML = "";
+
+                if (!snapshot.exists()) {
+                    container.innerHTML = "<p style='font-size:13px; color:#999;'>कोई यूज़र नहीं मिला।</p>";
+                    return;
+                }
+
+                snapshot.forEach((child) => {
+                    let u = child.val();
+                    container.innerHTML += `
+                        <div class="req-item">
+                            <div class="req-info">
+                                <strong>👤 ${u.name} (${u.phone})</strong><br>
+                                Pass: ${u.password}
+                            </div>
+                            <div style="font-weight:bold; color:#0f172a;">
+                                💳 ₹${u.balance || 0}
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+    </script>
+</body>
+</html>
