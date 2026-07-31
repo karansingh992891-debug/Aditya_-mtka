@@ -1446,13 +1446,58 @@ function loadDashboardStats() {
             const sb = document.getElementById('sidebar');
             sb.classList.toggle('-translate-x-full');
         };
+              // -- Request Management Logic --
 
-        // -- Result Declaration Logic --
-        window.declareMarketResult = async () => {
-            // Logic for triggering result and FCM notification
-            alert("Result Declared Successfully!");
-            // Implementation for calling notification API would go here
-        };
+// 1. Withdrawal Approve
+window.approveWithdrawal = async (reqId, userId, amount) => {
+    if(!confirm("क्या आप वाकई इस Withdrawal को Approve करना चाहते हैं?")) return;
+    await update(ref(db, 'requests/' + reqId), { status: 'success' });
+    alert("Withdrawal Approved Successfully!");
+};
+
+// 2. Withdrawal Reject
+window.rejectWithdrawal = async (reqId, userId, amount) => {
+    if(!confirm("क्या आप वाकई इस Withdrawal को Reject करना चाहते हैं?")) return;
+    await update(ref(db, 'requests/' + reqId), { status: 'rejected' });
+    
+    // User wallet refund logic
+    const userWalletRef = ref(db, 'users/' + userId + '/wallet');
+    const userSnapshot = await get(userWalletRef);
+    const currentBalance = parseFloat(userSnapshot.val() || 0);
+    await set(userWalletRef, currentBalance + parseFloat(amount));
+    alert("Withdrawal Rejected & Amount Refunded!");
+};
+             
+
+        // -- Updated Result Declaration Logic --
+window.declareMarketResult = async () => {
+    const marketName = document.getElementById('mkt-name-input').value; // मार्केट का नाम
+    const resultDigit = document.getElementById('mkt-result-input').value; // जो रिजल्ट आपने डाला
+    
+    if (!marketName || !resultDigit) {
+        alert("कृपया मार्केट नाम और रिजल्ट दोनों भरें!");
+        return;
+    }
+
+    // 1. Firebase Results में डेटा डालें
+    const resultRef = ref(db, 'results/' + marketName.replace(/\s+/g, ''));
+    await set(resultRef, {
+        market: marketName,
+        result: resultDigit,
+        timestamp: new Date().toISOString()
+    });
+
+    // 2. Notifications फोल्डर में नोटिफिकेशन डालें (ताकि यूजर को App में दिखे)
+    const notifRef = ref(db, 'notifications');
+    const newNotif = push(notifRef);
+    await set(newNotif, {
+        title: "📢 Result Declared!",
+        body: `${marketName} Result: ${resultDigit}`,
+        date: new Date().toISOString()
+    });
+
+    alert("Result Declared and Notification Sent Successfully!");
+};
 
         // Initialize on load
         window.onload = () => {
