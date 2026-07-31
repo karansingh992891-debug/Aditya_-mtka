@@ -1392,17 +1392,45 @@
         };
 
         // -- Dashboard Stats Loading --
-        function loadDashboardStats() {
-            const statsRef = ref(db, 'stats');
-            onValue(statsRef, (snapshot) => {
-                const data = snapshot.val();
-                if(data) {
-                    document.getElementById('stat-total-users').innerText = data.totalUsers || 0;
-                    document.getElementById('stat-today-deposit').innerText = `₹ ${data.todayDeposit || 0}`;
-                    document.getElementById('stat-today-withdraw').innerText = `₹ ${data.todayWithdraw || 0}`;
+function loadDashboardStats() {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    
+    // 1. Users Statistics (Total Users & Today Register)
+    const usersRef = ref(db, 'users');
+    onValue(usersRef, (snapshot) => {
+        const users = snapshot.val();
+        const userList = users ? Object.values(users) : [];
+        
+        // Total Users
+        document.getElementById('stat-total-users').innerText = userList.length;
+        
+        // Today Registered
+        const todayReg = userList.filter(u => u.createdAt && u.createdAt.includes(today)).length;
+        document.getElementById('stat-today-reg').innerText = todayReg;
+    });
+
+    // 2. Financial Statistics (Deposit & Withdrawal)
+    const reqRef = ref(db, 'requests');
+    onValue(reqRef, (snapshot) => {
+        const reqs = snapshot.val();
+        let totalDep = 0;
+        let totalWith = 0;
+        
+        if (reqs) {
+            Object.values(reqs).forEach(req => {
+                // यह चेक कर रहा है कि रिक्वेस्ट आज की हो और सक्सेसफुल हो
+                if (req.date === today && req.status === 'success') {
+                    const amount = parseFloat(req.amount) || 0;
+                    if (req.type === 'deposit') totalDep += amount;
+                    if (req.type === 'withdraw') totalWith += amount;
                 }
             });
         }
+        
+        document.getElementById('stat-today-deposit').innerText = `₹ ${totalDep}`;
+        document.getElementById('stat-today-withdraw').innerText = `₹ ${totalWith}`;
+    });
+}
 
         // -- Helper: Navigation --
         window.showTab = (tabId) => {
