@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aditya Matka Official</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+        }
+
+        body {
+            background-color: #f4f7f9;
+            color: #333;
+        }
+
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 18px;
+            background-color: #f5f8fa;
+        }
+
+        .auth-illustration {
+            width: 140px;
+            height: 120px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1a1e28;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+
+        .auth-subtitle {
+            font-size: 14px;
+            color: #7d879c;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .signup-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 25px 20px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .input-box {
+            position: relative;
+            margin-bottom: 16px;
+            width: 100%;
+        }
+
+        .input-box input, .input-box select {
+            width: 100%;
+            padding: 14px 14px 14px 45px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+            background-color: #f8fafc;
+            color: #334155;
+        }
+
+        .input-box input:focus, .input-box select:focus {
+            border-color: #e0005a;
+            background-color: #ffffff;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #64748b;
+        }
+
+        .btn-pink {
+            width: 100%;
+            background-color: #e0005a;
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(224, 0, 90, 0.3);
+            margin-top: 5px;
+        }
+
+        .auth-footer-text {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #64748b;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .switch-btn {
+            background: transparent;
+            border: none;
+            color: #e0005a;
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .dashboard-container {
+            padding-bottom: 75px;
+        }
+
+        .top-bar {
+            background-color: #ffffff;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+
+        .menu-btn {
+            font-size: 24px;
+            color: #e0005a;
+            cursor: pointer;
+        }
+
+        .brand-logo {
+            font-size: 19px;
+            font-weight: 900;
+            color: #c59b27;
+        }
+
+        .brand-logo span {
+            color: #e0005a;
+        }
+
+        .wallet-pill {
+            background-color: #e0005a;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .marquee-box {
+            background-color: #ffffff;
+            padding: 6px 10px;
+            font-size: 13px;
+            color: #f57c00;
+            font-weight: bold;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .actions-grid-1 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .btn-add {
+            background: linear-gradient(90deg, #d4af37, #7cb342);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-withdraw {
+            background: linear-gradient(90deg, #ff8a65, #e53935);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .actions-grid-2 {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1fr;
+            gap: 8px;
+            padding: 0 10px 10px 10px;
+        }
+
+        .btn-wa-pink {
+            background-color: #ff0055;
+            color: white;
+            padding: 9px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 12px;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn-starline, .btn-gali {
+            padding: 9px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 12px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .btn-starline { background-color: #ff0055; color: white; }
+        .btn-gali { border: 1.5px solid #ff0055; color: #ff0055; background: white; }
+
+        .games-container { padding: 0 10px; }
+
+        .game-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 8px 12px 4px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .game-name { font-size: 14px; font-weight: 800; }
+
+        .status-tag {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .status-tag.closed { background-color: #b71c1c; color: white; }
+        .status-tag.open { background-color: #1b5e20; color: white; }
+
+        .card-body {
+            padding: 0 12px 6px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .game-number { font-size: 17px; font-weight: 800; color: #b71c1c; }
+
+        .play-btn {
+            background-color: #e0005a;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border: none;
+        }
+
+        .card-footer {
+            background-color: #e0005a;
+            color: white;
+            padding: 5px 12px;
+            font-size: 10.5px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 15px;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 380px;
+            position: relative;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 15px; top: 12px;
+            font-size: 22px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #777;
+        }
+
+        .upi-box {
+            background: #f1f5f9;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            color: #0284c7;
+            margin: 10px 0;
+            border: 1px dashed #0284c7;
+        }
+
+        .rates-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .rates-table th, .rates-table td {
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .rates-table th {
+            background-color: #e0005a;
+            color: white;
+            font-weight: bold;
+        }
+
+        .rates-table tr:nth-child(even) { background-color: #f8fafc; }
+        .rates-table td span { color: #22c55e; font-weight: bold; }
+
+        .history-item {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .bottom-navbar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            border-top: 1px solid #e0e0e0;
+            z-index: 200;
+        }
+
+        .nav-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 11px;
+            color: #666;
+            text-decoration: none;
+            font-weight: bold;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .nav-link.active { color: #e0005a; }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="auth-wrapper" style="display: flex;">
+        <div class="auth-illustration">
+            <svg width="120" height="110" viewBox="0 0 200 180" fill="none">
+                <rect x="50" y="20" width="100" height="150" rx="15" fill="#1E293B"/>
+                <rect x="55" y="25" width="90" height="140" rx="10" fill="#FFFFFF"/>
+                <circle cx="100" cy="50" r="16" fill="#FFC107"/>
+                <circle cx="100" cy="88" r="10" fill="#FF0055"/>
+            </svg>
+        </div>
+
+        <div class="auth-title">Welcome Back!</div>
+        <div class="auth-subtitle">Login to your account to continue</div>
+
+        <div class="input-box">
+            <span class="input-icon">📞</span>
+            <input type="tel" id="login-phone" placeholder="Mobile Number">
+        </div>
+
+        <div class="input-box">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="login-pass" placeholder="Password">
+        </div>
+
+        <button type="button" class="btn-pink" onclick="handleLogin()">LOGIN</button>
+
+        <div class="auth-footer-text">
+            <span>New user?</span>
+            <button type="button" class="switch-btn" onclick="showScreen('signup')">Sign up</button>
+        </div>
+    </div>
+
+    <!-- SIGN UP SCREEN -->
+    <div id="signup-screen" class="auth-wrapper" style="display: none;">
+        <div class="signup-card">
+            <div class="auth-title">Create New Account</div>
+            <div style="height: 15px;"></div>
+
+            <div class="input-box">
+                <span class="input-icon">👤</span>
+                <input type="text" id="reg-name" placeholder="Full Name">
+            </div>
+
+            <div class="input-box">
+                <span class="input-icon">📱</span>
+                <input type="tel" id="reg-phone" placeholder="Mobile Number">
+            </div>
+
+            <div class="input-box">
+                <span class="input-icon">🔒</span>
+                <input type="password" id="reg-pass" placeholder="Create Password">
+            </div>
+
+            <button type="button" class="btn-pink" onclick="handleRegister()">CREATE ID & SIGN UP</button>
+
+            <div class="auth-footer-text">
+                <span>Already have an account?</span>
+                <button type="button" class="switch-btn" onclick="showScreen('login')">LOGIN</button>
+            </div>
+        </div>
+    </div>
+  <!-- HOME DASHBOARD -->
+    <div id="home-screen" class="dashboard-container" style="display: none;">
+        <div class="top-bar">
+            <div class="menu-btn" onclick="openModal('menu-modal')">☰</div>
+            <div class="brand-logo">ADITYA <span>MATKA</span></div>
+            <div class="wallet-pill" id="wallet-display" onclick="openModal('add-fund-modal')">💳 ₹0</div>
+        </div>
+
+        <div class="marquee-box">
+            <marquee scrollamount="5">Welcome to Aditya Matka ~ भारत का नंबर 1 मटका ऐप | Fast Withdrawal 24x7!</marquee>
+        </div>
+
+        <div class="actions-grid-1">
+            <button class="btn-add" onclick="openModal('add-fund-modal')">📥 ADD FUND</button>
+            <button class="btn-withdraw" onclick="openModal('withdraw-modal')">📤 WITHDRAWAL</button>
+        </div>
+
+        <div class="actions-grid-2">
+            <a href="https://wa.me/919928916103" class="btn-wa-pink" target="_blank">💬 WhatsApp</a>
+            <div class="btn-starline" onclick="alert('Starline Game jald hi aayega!')">STARLINE</div>
+            <div class="btn-gali" onclick="alert('Gali Disawar Game jald hi aayega!')">GALI</div>
+        </div>
+
+        <div class="games-container" id="games-list-target"></div>
+
+        <div class="bottom-navbar">
+            <button class="nav-link" onclick="openModal('bids-modal')">📄 Bids</button>
+            <button class="nav-link" onclick="openModal('passbook-modal')">📖 Passbook</button>
+            <button class="nav-link active" onclick="showScreen('home')">🏠 Home</button>
+            <button class="nav-link" onclick="openModal('add-fund-modal')">💳 Funds</button>
+            <button class="nav-link" onclick="openModal('rates-modal')">⭐ Rates</button>
+        </div>
+    </div>
+
+    <!-- GAME RATES MODAL -->
+    <div id="rates-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('rates-modal')">✕</span>
+            <h3 style="text-align: center; color: #e0005a; margin-bottom: 5px;">⭐ GAME RATES ⭐</h3>
+            <p style="text-align: center; font-size: 12px; color: #64748b;">हमारी ऍप के सभी गेम के रेट्स नीचे दिए गए हैं:</p>
+
+            <table class="rates-table">
+                <thead>
+                    <tr>
+                        <th>Game Type</th>
+                        <th>Bidding Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Single Digit</td><td>₹100 = <span>₹1000</span></td></tr>
+                    <tr><td>Single Pana</td><td>₹10 = <span>₹1500</span></td></tr>
+                    <tr><td>Double Pana</td><td>₹10 = <span>₹3000</span></td></tr>
+                    <tr><td>Jodi Digit</td><td>₹10 = <span>₹1000</span></td></tr>
+                    <tr><td>Triple Pana</td><td>₹10 = <span>₹6000</span></td></tr>
+                    <tr><td>Half Sangam</td><td>₹10 = <span>₹10000</span></td></tr>
+                    <tr><td>Full Sangam</td><td>₹10 = <span>₹100000</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PLAY / BIDDING MODAL -->
+    <div id="play-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('play-modal')">✕</span>
+            <h3 id="play-game-title" style="color: #e0005a; margin-bottom: 10px;">Play Game</h3>
+
+            <div class="input-box">
+                <span class="input-icon">🎲</span>
+                <select id="bid-type">
+                    <option value="Single Digit">Single Digit (₹100 = ₹1000)</option>
+                    <option value="Jodi Digit">Jodi Digit (₹10 = ₹1000)</option>
+                    <option value="Single Pana">Single Pana (₹10 = ₹1500)</option>
+                    <option value="Double Pana">Double Pana (₹10 = ₹3000)</option>
+                    <option value="Triple Pana">Triple Pana (₹10 = ₹6000)</option>
+                    <option value="Half Sangam">Half Sangam (₹10 = ₹10000)</option>
+                    <option value="Full Sangam">Full Sangam (₹10 = ₹100000)</option>
+                </select>
+            </div>
+
+            <div class="input-box">
+                <span class="input-icon">🔢</span>
+                <input type="number" id="bid-digit" placeholder="Enter Digit / Pana Number">
+            </div>
+
+            <div class="input-box">
+                <span class="input-icon">₹</span>
+                <input type="number" id="bid-amount" placeholder="Enter Points / Amount">
+            </div>
+
+            <button type="button" class="btn-pink" onclick="submitBid()">PLACE BID (BET)</button>
+        </div>
+    </div>
+
+    <!-- ADD FUND MODAL -->
+    <div id="add-fund-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('add-fund-modal')">✕</span>
+            <h3 style="margin-bottom: 10px; color: #1e293b;">Add Money to Wallet</h3>
+            <p style="font-size: 12px; color: #64748b;">नीचे दिए गए UPI ID पर पेमेंट करके 12-अंकों का UTR/Ref No दर्ज करें:</p>
+            
+            <div class="upi-box">adityamatka@upi</div>
+
+            <div class="input-box" style="margin-top: 15px;">
+                <span class="input-icon">₹</span>
+                <input type="number" id="fund-amount" placeholder="Enter Amount (e.g. 500)">
+            </div>
+
+            <div class="input-box">
+                <span class="input-icon">🔢</span>
+                <input type="number" id="fund-utr" placeholder="12 Digit UTR Number">
+            </div>
+
+            <button type="button" class="btn-pink" onclick="submitAddFund()">SUBMIT & ADD POINTS</button>
+        </div>
+    </div>
+
+    <!-- WITHDRAWAL MODAL -->
+    <div id="withdraw-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('withdraw-modal')">✕</span>
+            <h3 style="margin-bottom: 10px; color: #1e293b;">Request Withdrawal</h3>
+            
+            <div class="input-box" style="margin-top: 15px;">
+                <span class="input-icon">₹</span>
+                <input type="number" id="withdraw-amount" placeholder="Enter Withdrawal Amount">
+            </div>
+
+            <div class="input-box">
+                <span class="input-icon">🏦</span>
+                <select id="withdraw-type">
+                    <option value="UPI">PhonePe / GPay / Paytm UPI</option>
+                    <option value="BANK">Bank Transfer</option>
+                </select>
+            </div>
+
+            <div class="input-box">
+                <span class="input-icon">📱</span>
+                <input type="text" id="withdraw-details" placeholder="Enter UPI ID or Phone No">
+            </div>
+
+            <button type="button" class="btn-pink" onclick="submitWithdrawal()">SUBMIT WITHDRAWAL</button>
+        </div>
+    </div>
+
+    <!-- BIDS HISTORY MODAL -->
+    <div id="bids-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('bids-modal')">✕</span>
+            <h3 style="color: #e0005a; margin-bottom: 10px;">📄 My Bids History</h3>
+            <div id="bids-list-container">
+                <p style="text-align: center; color: #999; font-size: 13px;">कोई बिड (Bid) नहीं लगाई गई है।</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- PASSBOOK MODAL -->
+    <div id="passbook-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('passbook-modal')">✕</span>
+            <h3 style="color: #e0005a; margin-bottom: 10px;">📖 Wallet Passbook</h3>
+            <div id="passbook-list-container">
+                <p style="text-align: center; color: #999; font-size: 13px;">कोई लेनदेन दर्ज नहीं है।</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIDE MENU MODAL -->
+    <div id="menu-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('menu-modal')">✕</span>
+            <h3 style="color: #e0005a; margin-bottom: 15px;">☰ Menu</h3>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn-pink" style="background: #1e293b;" onclick="closeModal('menu-modal'); openModal('rates-modal');">⭐ Game Rates</button>
+                <button class="btn-pink" style="background: #1e293b;" onclick="closeModal('menu-modal'); openModal('add-fund-modal');">💳 Deposit Points</button>
+                <button class="btn-pink" style="background: #1e293b;" onclick="closeModal('menu-modal'); openModal('withdraw-modal');">📤 Withdrawal</button>
+                <button class="btn-pink" style="background: #1e293b;" onclick="closeModal('menu-modal'); openModal('passbook-modal');">📖 Passbook</button>
+                <button class="btn-pink" style="background: #c59b27;" onclick="location.reload();">Logout</button>
+            </div>
+        </div>
+    </div>
+  <!-- JAVASCRIPT LOGIC -->
+    <script>
+        let walletBalance = parseInt(localStorage.getItem('user_wallet')) || 0;
+        let registeredUsers = JSON.parse(localStorage.getItem('app_users')) || [];
+        let userBids = JSON.parse(localStorage.getItem('user_bids')) || [];
+        let passbook = JSON.parse(localStorage.getItem('user_passbook')) || [];
+        let currentGameSelected = "";
+
+        window.onload = function() {
+            updateWalletUI();
+        };
+
+        function updateWalletUI() {
+            document.getElementById('wallet-display').innerText = `💳 ₹${walletBalance}`;
+            localStorage.setItem('user_wallet', walletBalance);
+        }
+
+        function addPassbookEntry(title, amount, type) {
+            passbook.unshift({ title, amount, type, date: new Date().toLocaleTimeString() });
+            localStorage.setItem('user_passbook', JSON.stringify(passbook));
+        }
+
+        function showScreen(screen) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('signup-screen').style.display = 'none';
+            document.getElementById('home-screen').style.display = 'none';
+
+            if(screen === 'login') document.getElementById('login-screen').style.display = 'flex';
+            if(screen === 'signup') document.getElementById('signup-screen').style.display = 'flex';
+            if(screen === 'home') {
+                document.getElementById('home-screen').style.display = 'block';
+                renderGames();
+            }
+        }
+
+        function handleRegister() {
+            let name = document.getElementById('reg-name').value;
+            let phone = document.getElementById('reg-phone').value;
+            let pass = document.getElementById('reg-pass').value;
+
+            if(!name || !phone || !pass) {
+                alert("कृपया पूरी जानकारी भरें!");
+                return;
+            }
+
+            registeredUsers.push({ name, phone, pass });
+            localStorage.setItem('app_users', JSON.stringify(registeredUsers));
+
+            alert("आपकी ID सफलतापूर्वक बन गई है!");
+            showScreen('home');
+        }
+
+        function handleLogin() {
+            let phone = document.getElementById('login-phone').value;
+            let pass = document.getElementById('login-pass').value;
+
+            if(!phone || !pass) {
+                alert("मोबाइल नंबर और पासवर्ड डालें!");
+                return;
+            }
+
+            showScreen('home');
+        }
+
+        function openModal(id) { 
+            document.getElementById(id).style.display = 'flex'; 
+            if(id === 'bids-modal') renderBids();
+            if(id === 'passbook-modal') renderPassbook();
+        }
+
+        function closeModal(id) { 
+            document.getElementById(id).style.display = 'none'; 
+        }
+
+        function submitAddFund() {
+            let amt = parseInt(document.getElementById('fund-amount').value);
+            let utr = document.getElementById('fund-utr').value;
+
+            if(!amt || amt < 100) {
+                alert("कम से कम ₹100 का फंड ऐड करें!");
+                return;
+            }
+            if(!utr || utr.length < 10) {
+                alert("सही 12-अंकों का UTR नंबर डालें!");
+                return;
+            }
+
+            walletBalance += amt;
+            updateWalletUI();
+            addPassbookEntry("Deposit (UTR: " + utr + ")", "+₹" + amt, "credit");
+            
+            alert(`सफलतापूर्वक ₹${amt} पॉइंट्स आपके अकाउंट में जोड़ दिए गए हैं!`);
+            document.getElementById('fund-amount').value = "";
+            document.getElementById('fund-utr').value = "";
+            closeModal('add-fund-modal');
+        }
+
+        function submitWithdrawal() {
+            let amt = parseInt(document.getElementById('withdraw-amount').value);
+            let details = document.getElementById('withdraw-details').value;
+
+            if(!amt || amt < 300) {
+                alert("कम से कम ₹300 का विथड्रॉल कर सकते हैं!");
+                return;
+            }
+            if(amt > walletBalance) {
+                alert("आपके वॉलेट में पर्याप्त बैलेंस नहीं है!");
+                return;
+            }
+            if(!details) {
+                alert("अपनी UPI ID या अकाउंट नंबर दर्ज करें!");
+                return;
+            }
+
+            walletBalance -= amt;
+            updateWalletUI();
+            addPassbookEntry("Withdrawal (" + details + ")", "-₹" + amt, "debit");
+
+            alert(`₹${amt} के विथड्रॉल की रिक्वेस्ट भेज दी गई है।`);
+            document.getElementById('withdraw-amount').value = "";
+            document.getElementById('withdraw-details').value = "";
+            closeModal('withdraw-modal');
+        }
+
+        function openPlayModal(gameName) {
+            currentGameSelected = gameName;
+            document.getElementById('play-game-title').innerText = "Play - " + gameName;
+            openModal('play-modal');
+        }
+
+        function submitBid() {
+            let type = document.getElementById('bid-type').value;
+            let digit = document.getElementById('bid-digit').value;
+            let amt = parseInt(document.getElementById('bid-amount').value);
+
+            if(!digit) {
+                alert("डिजिट या पाना नंबर दर्ज करें!");
+                return;
+            }
+            if(!amt || amt < 10) {
+                alert("कम से कम ₹10 की बिड (Bet) लगाएँ!");
+                return;
+            }
+            if(amt > walletBalance) {
+                alert("पर्याप्त बैलेंस नहीं है! कृपया Wallet में पॉइंट्स ऐड करें।");
+                return;
+            }
+
+            walletBalance -= amt;
+            updateWalletUI();
+
+            userBids.unshift({
+                game: currentGameSelected,
+                type: type,
+                digit: digit,
+                amount: amt,
+                time: new Date().toLocaleTimeString()
+            });
+            localStorage.setItem('user_bids', JSON.stringify(userBids));
+
+            addPassbookEntry("Bid: " + currentGameSelected + " (" + digit + ")", "-₹" + amt, "debit");
+
+            alert(`आपकी ₹${amt} की बिड ${currentGameSelected} (${digit}) पर सफलतापूर्वक लग गई है!`);
+            document.getElementById('bid-digit').value = "";
+            document.getElementById('bid-amount').value = "";
+            closeModal('play-modal');
+        }
+
+        function renderBids() {
+            const container = document.getElementById('bids-list-container');
+            if(userBids.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: #999; font-size: 13px;">कोई बिड (Bid) नहीं लगाई गई है।</p>`;
+                return;
+            }
+            container.innerHTML = userBids.map(b => `
+                <div class="history-item">
+                    <div>
+                        <strong>${b.game}</strong><br>
+                        <small style="color:#666;">${b.type} | Digit: <strong>${b.digit}</strong></small>
+                    </div>
+                    <div style="text-align:right;">
+                        <span style="color:#e0005a; font-weight:bold;">₹${b.amount}</span><br>
+                        <small style="color:#999;">${b.time}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderPassbook() {
+            const container = document.getElementById('passbook-list-container');
+            if(passbook.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: #999; font-size: 13px;">कोई लेनदेन दर्ज नहीं है।</p>`;
+                return;
+            }
+            container.innerHTML = passbook.map(p => `
+                <div class="history-item">
+                    <div>
+                        <strong>${p.title}</strong><br>
+                        <small style="color:#999;">${p.date}</small>
+                    </div>
+                    <div style="text-align:right; font-weight:bold; color: ${p.type === 'credit' ? '#22c55e' : '#e0005a'};">
+                        ${p.amount}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        const gamesData = [
+            { name: "SANGAM MORNING", result: "578-09-478", openTime: "09:00 AM", closeTime: "10:00 AM", isOpen: false },
+            { name: "KARNATAKA DAY", result: "***-**-***", openTime: "09:50 AM", closeTime: "10:50 AM", isOpen: true },
+            { name: "MILAN MORNING", result: "***-**-***", openTime: "10:25 AM", closeTime: "11:25 AM", isOpen: true },
+            { name: "MADHUR MORNING", result: "***-**-***", openTime: "11:25 AM", closeTime: "12:25 PM", isOpen: true },
+            { name: "SRIDEVI", result: "***-**-***", openTime: "11:30 AM", closeTime: "12:30 PM", isOpen: true },
+            { name: "KALYAN MORNING", result: "***-**-***", openTime: "11:45 AM", closeTime: "12:45 PM", isOpen: true },
+            { name: "TIME BAZAR", result: "***-**-***", openTime: "01:05 PM", closeTime: "02:05 PM", isOpen: true },
+            { name: "MADHUR DAY", result: "***-**-***", openTime: "01:30 PM", closeTime: "02:30 PM", isOpen: true },
+            { name: "MILAN DAY", result: "***-**-***", openTime: "03:05 PM", closeTime: "05:05 PM", isOpen: true },
+            { name: "RAJDHANI DAY", result: "***-**-***", openTime: "03:05 PM", closeTime: "05:05 PM", isOpen: true },
+            { name: "SANGAM DAY", result: "***-**-***", openTime: "03:15 PM", closeTime: "05:20 PM", isOpen: true },
+            { name: "SUPERME DAY", result: "***-**-***", openTime: "03:35 PM", closeTime: "05:35 PM", isOpen: true },
+            { name: "KALYAN", result: "***-**-***", openTime: "03:50 PM", closeTime: "05:50 PM", isOpen: true },
+            { name: "SANGAM NIGHT", result: "***-**-***", openTime: "06:50 PM", closeTime: "07:50 PM", isOpen: true },
+            { name: "SRIDEVI NIGHT", result: "***-**-***", openTime: "07:10 PM", closeTime: "08:10 PM", isOpen: true },
+            { name: "MADHUR NIGHT", result: "***-**-***", openTime: "08:25 PM", closeTime: "10:25 PM", isOpen: true },
+            { name: "SUPREME NIGHT", result: "***-**-***", openTime: "08:40 PM", closeTime: "10:40 PM", isOpen: true },
+            { name: "MILAN NIGHT", result: "***-**-***", openTime: "09:05 PM", closeTime: "11:05 PM", isOpen: true },
+            { name: "RAJDHANI NIGHT", result: "***-**-***", openTime: "09:35 PM", closeTime: "11:35 PM", isOpen: true },
+            { name: "KALYAN NIGHT", result: "***-**-***", openTime: "09:40 PM", closeTime: "11:40 PM", isOpen: true },
+            { name: "MAIN BAZAR", result: "***-**-***", openTime: "09:50 PM", closeTime: "11:50 PM", isOpen: true }
+        ];
+
+        function renderGames() {
+            const container = document.getElementById('games-list-target');
+            container.innerHTML = "";
+
+            gamesData.forEach(game => {
+                const statusClass = game.isOpen ? "open" : "closed";
+                const statusText = game.isOpen ? "Betting is open for today" : "Betting is closed for today";
+                const playAction = game.isOpen ? `onclick="openPlayModal('${game.name}')"` : `onclick="alert('यह गेम बंद हो चुका है!')"`;
+
+                container.innerHTML += `
+                    <div class="game-card">
+                        <div class="card-header">
+                            <div class="game-name">${game.name}</div>
+                            <span class="status-tag ${statusClass}">${statusText}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="game-number">${game.result}</div>
+                            <button class="play-btn" ${playAction}>▶</button>
+                        </div>
+                        <div class="card-footer">
+                            <span>OPEN ${game.openTime}</span>
+                            <span>CLOSE ${game.closeTime}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
+
+    
