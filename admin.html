@@ -1,110 +1,3 @@
-<!-- TAB 9: WINNING PREDICTION -->
-                <div id="tab-winning-predict" class="tab-content">
-                    <div class="card">
-                        <div class="card-title">
-                            <span><i class="fa-solid fa-chart-line text-purple-600 mr-2"></i> Realtime Winning Prediction Analysis</span>
-                            <div class="flex gap-2">
-                                <select id="predict-market-select" class="form-select text-xs py-1" onchange="loadWinningPredictions()">
-                                    <option value="">-- Select Market --</option>
-                                </select>
-                                <select id="predict-type-select" class="form-select text-xs py-1" onchange="loadWinningPredictions()">
-                                    <option value="SINGLE_DIGIT">Single Digit (0-9)</option>
-                                    <option value="JODI_DIGIT">Jodi Digit (00-99)</option>
-                                    <option value="SINGLE_PANNA">Single Panna</option>
-                                    <option value="DOUBLE_PANNA">Double Panna</option>
-                                    <option value="TRIPLE_PANNA">Triple Panna</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4 text-xs text-blue-800">
-                            <i class="fa-solid fa-circle-info mr-1"></i> Check total exposure and payouts for each digit/number before declaring market results to calculate net profit or loss.
-                        </div>
-
-                        <div class="overflow-x-auto">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Number / Ank</th>
-                                        <th>Total Bids Placed</th>
-                                        <th>Total Amount Bet (₹)</th>
-                                        <th>Estimated Win Payout (₹)</th>
-                                        <th>Net Profit / Loss (₹)</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbody-winning-predictions">
-                                    <tr>
-                                        <td colspan="5" class="text-center py-6 text-slate-400">Select a market above to generate real-time exposure calculations.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB 10: DEPOSIT REQUESTS -->
-                <div id="tab-deposit-req" class="tab-content">
-                    <div class="card">
-                        <div class="card-title">
-                            <span><i class="fa-solid fa-arrow-down-left-and-arrow-up-right-to-center text-emerald-600 mr-2"></i> Pending & Recent Deposit Requests</span>
-                            <div class="flex gap-2">
-                                <select id="deposit-filter-status" class="form-select text-xs py-1" onchange="loadDepositRequestsTable()">
-                                    <option value="PENDING">Pending Only</option>
-                                    <option value="APPROVED">Approved Only</option>
-                                    <option value="REJECTED">Rejected Only</option>
-                                    <option value="ALL">All Requests</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="overflow-x-auto">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Req. ID</th>
-                                        <th>User Details</th>
-                                        <th>Amount</th>
-                                        <th>Transaction / UTR ID</th>
-                                        <th>Payment Proof</th>
-                                        <th>Request Date</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbody-deposit-requests">
-                                    <!-- Injected via JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB 11: WITHDRAWAL REQUESTS -->
-                <div id="tab-withdraw-req" class="tab-content">
-                    <div class="card">
-                        <div class="card-title">
-                            <span><i class="fa-solid fa-hand-holding-dollar text-rose-600 mr-2"></i> User Withdrawal Requests</span>
-                            <div class="flex gap-2">
-                                <select id="withdraw-filter-status" class="form-select text-xs py-1" onchange="loadWithdrawalRequestsTable()">
-                                    <option value="PENDING">Pending Only</option>
-                                    <option value="APPROVED">Approved Only</option>
-                                    <option value="REJECTED">Rejected Only</option>
-                                    <option value="ALL">All Requests</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="overflow-x-auto">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Req. ID</th>
-                                        <th>User Details</th>
-                                        <th>Req. Amount</th>
-                                        <th>Available Wallet Balance</th>
-                                        <th>User Payment / UPI Info</th>
-                                        <th>Request Date</th>
-                                        <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -120,8 +13,7 @@
                 <div id="tab-add-deduct-fund" class="tab-content">
                     <div class="card max-w-2xl mx-auto">
                         <div class="card-title">
-                            <span><i class="fa-solid fa-money-bill-transfer text-cyan-600 mr-2"></i> Directly Add or Deduct Points to User Wallet</span>
-                        </div>
+                            <span><i class="fa-solid fa-money-bill-transfer text-cyan-600 mr-2"></i> Directly Add or Deduct P
 
                         <div class="space-y-4 p-2">
                             <div>
@@ -712,7 +604,7 @@
                                 </thead>
                                 <tbody id="tbody-winning-predictions">
                                     <tr>
-                                        <td colspan="5" class="text-center py-6 text-slate-400">Select a market above to generate real-time exposure calculations.</td>
+                                        <td colspan="5" class="text-center py-6 text-slate-400">Select a market above to generate real-time exp
                                     </tr>
                                 </tbody>
                             </table>
