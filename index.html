@@ -659,7 +659,7 @@
 
         // Firebase Initialize
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        const db = firebase.firestore();
 
         let currentPhone = localStorage.getItem('user_phone') || null;
         let walletBalance = 0;
