@@ -18,385 +18,130 @@
             -webkit-tap-highlight-color: rgba(0,0,0,0);
         }
 
-        body {
-            background-color: #f4f7f9;
-            color: #333;
-        }
+        body { background-color: #f4f7f9; color: #333; }
 
         .auth-wrapper {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px 18px;
-            background-color: #f5f8fa;
+            min-height: 100vh; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            padding: 20px 18px; background-color: #f5f8fa;
         }
 
         .auth-illustration {
-            width: 140px;
-            height: 120px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 140px; height: 120px; margin-bottom: 15px;
+            display: flex; align-items: center; justify-content: center;
         }
 
-        .auth-title {
-            font-size: 24px;
-            font-weight: 800;
-            color: #1a1e28;
-            margin-bottom: 6px;
-            text-align: center;
-        }
-
-        .auth-subtitle {
-            font-size: 14px;
-            color: #7d879c;
-            margin-bottom: 25px;
-            text-align: center;
-        }
+        .auth-title { font-size: 24px; font-weight: 800; color: #1a1e28; margin-bottom: 6px; text-align: center; }
+        .auth-subtitle { font-size: 14px; color: #7d879c; margin-bottom: 25px; text-align: center; }
 
         .signup-card {
-            background: #ffffff;
-            border-radius: 24px;
-            padding: 25px 20px;
-            width: 100%;
-            max-width: 380px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            background: #ffffff; border-radius: 24px; padding: 25px 20px;
+            width: 100%; max-width: 380px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
-        .input-box {
-            position: relative;
-            margin-bottom: 16px;
-            width: 100%;
-        }
+        .input-box { position: relative; margin-bottom: 16px; width: 100%; }
 
         .input-box input, .input-box select {
-            width: 100%;
-            padding: 14px 14px 14px 45px;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 15px;
-            outline: none;
-            background-color: #f8fafc;
-            color: #334155;
+            width: 100%; padding: 14px 14px 14px 45px; border: 1.5px solid #e2e8f0;
+            border-radius: 12px; font-size: 15px; outline: none;
+            background-color: #f8fafc; color: #334155;
         }
 
-        .input-box input:focus, .input-box select:focus {
-            border-color: #e0005a;
-            background-color: #ffffff;
-        }
+        .input-box input:focus, .input-box select:focus { border-color: #e0005a; background-color: #ffffff; }
 
         .input-icon {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 18px;
-            color: #64748b;
+            position: absolute; left: 16px; top: 50%;
+            transform: translateY(-50%); font-size: 18px; color: #64748b;
         }
 
         .btn-pink {
-            width: 100%;
-            background-color: #e0005a;
-            color: #ffffff;
-            border: none;
-            padding: 14px;
-            font-size: 16px;
-            font-weight: 700;
-            border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(224, 0, 90, 0.3);
+            width: 100%; background-color: #e0005a; color: #ffffff;
+            border: none; padding: 14px; font-size: 16px; font-weight: 700;
+            border-radius: 12px; cursor: pointer; box-shadow: 0 4px 12px rgba(224, 0, 90, 0.3);
             margin-top: 5px;
         }
 
         .auth-footer-text {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #64748b;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
+            margin-top: 15px; font-size: 14px; color: #64748b; text-align: center;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
         }
 
         .switch-btn {
-            background: transparent;
-            border: none;
-            color: #e0005a;
-            font-weight: 800;
-            font-size: 15px;
-            cursor: pointer;
-            text-decoration: underline;
+            background: transparent; border: none; color: #e0005a;
+            font-weight: 800; font-size: 15px; cursor: pointer; text-decoration: underline;
         }
 
-        .dashboard-container {
-            padding-bottom: 75px;
-        }
+        .dashboard-container { padding-bottom: 75px; }
 
         .top-bar {
-            background-color: #ffffff;
-            padding: 12px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            background-color: #ffffff; padding: 12px 15px; display: flex;
+            justify-content: space-between; align-items: center; position: sticky;
+            top: 0; z-index: 100; box-shadow: 0 2px 6px rgba(0,0,0,0.06);
         }
 
-        .menu-btn {
-            font-size: 24px;
-            color: #e0005a;
-            cursor: pointer;
-        }
-
-        .brand-logo {
-            font-size: 19px;
-            font-weight: 900;
-            color: #c59b27;
-        }
-
-        .brand-logo span {
-            color: #e0005a;
-        }
+        .menu-btn { font-size: 24px; color: #e0005a; cursor: pointer; }
+        .brand-logo { font-size: 19px; font-weight: 900; color: #c59b27; }
+        .brand-logo span { color: #e0005a; }
 
         .wallet-pill {
-            background-color: #e0005a;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-size: 13px;
-            font-weight: bold;
-            cursor: pointer;
+            background-color: #e0005a; color: white; padding: 6px 12px;
+            border-radius: 15px; font-size: 13px; font-weight: bold; cursor: pointer;
         }
 
         .marquee-box {
-            background-color: #ffffff;
-            padding: 6px 10px;
-            font-size: 13px;
-            color: #f57c00;
-            font-weight: bold;
-            border-bottom: 1px solid #f0f0f0;
+            background-color: #ffffff; padding: 6px 10px; font-size: 13px;
+            color: #f57c00; font-weight: bold; border-bottom: 1px solid #f0f0f0;
         }
 
-        .actions-grid-1 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            padding: 10px;
-        }
+        .actions-grid-1 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
+        .btn-add { background: linear-gradient(90deg, #d4af37, #7cb342); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-withdraw { background: linear-gradient(90deg, #ff8a65, #e53935); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-        .btn-add {
-            background: linear-gradient(90deg, #d4af37, #7cb342);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .btn-withdraw {
-            background: linear-gradient(90deg, #ff8a65, #e53935);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .actions-grid-2 {
-            display: grid;
-            grid-template-columns: 1.2fr 1fr 1fr;
-            gap: 8px;
-            padding: 0 10px 10px 10px;
-        }
-
-        .btn-wa-pink {
-            background-color: #ff0055;
-            color: white;
-            padding: 9px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 12px;
-            text-align: center;
-            text-decoration: none;
-        }
-
-        .btn-starline, .btn-gali {
-            padding: 9px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 12px;
-            text-align: center;
-            cursor: pointer;
-        }
-
+        .actions-grid-2 { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 8px; padding: 0 10px 10px 10px; }
+        .btn-wa-pink { background-color: #ff0055; color: white; padding: 9px; border-radius: 8px; font-weight: bold; font-size: 12px; text-align: center; text-decoration: none; }
+        .btn-starline, .btn-gali { padding: 9px; border-radius: 8px; font-weight: bold; font-size: 12px; text-align: center; cursor: pointer; }
         .btn-starline { background-color: #ff0055; color: white; }
         .btn-gali { border: 1.5px solid #ff0055; color: #ff0055; background: white; }
 
         .games-container { padding: 0 10px; }
 
-        .game-card {
-            background-color: #ffffff;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            overflow: hidden;
-        }
-
-        .card-header {
-            padding: 8px 12px 4px 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
+        .game-card { background-color: #ffffff; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); overflow: hidden; }
+        .card-header { padding: 8px 12px 4px 12px; display: flex; justify-content: space-between; align-items: center; }
         .game-name { font-size: 14px; font-weight: 800; }
-
-        .status-tag {
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-weight: bold;
-        }
-
+        .status-tag { font-size: 10px; padding: 2px 6px; border-radius: 3px; font-weight: bold; }
         .status-tag.closed { background-color: #b71c1c; color: white; }
         .status-tag.open { background-color: #1b5e20; color: white; }
 
-        .card-body {
-            padding: 0 12px 6px 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
+        .card-body { padding: 0 12px 6px 12px; display: flex; justify-content: space-between; align-items: center; }
         .game-number { font-size: 17px; font-weight: 800; color: #b71c1c; }
-
-        .play-btn {
-            background-color: #e0005a;
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            border: none;
-        }
-
-        .card-footer {
-            background-color: #e0005a;
-            color: white;
-            padding: 5px 12px;
-            font-size: 10.5px;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-        }
+        .play-btn { background-color: #e0005a; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; border: none; }
+        .card-footer { background-color: #e0005a; color: white; padding: 5px 12px; font-size: 10.5px; font-weight: bold; display: flex; justify-content: space-between; }
 
         .modal {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.6);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            padding: 15px;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6); display: none; justify-content: center;
+            align-items: center; z-index: 1000; padding: 15px;
         }
 
         .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 16px;
-            width: 100%;
-            max-width: 380px;
-            position: relative;
-            max-height: 85vh;
-            overflow-y: auto;
+            background: white; padding: 20px; border-radius: 16px; width: 100%;
+            max-width: 380px; position: relative; max-height: 85vh; overflow-y: auto;
         }
 
-        .close-modal {
-            position: absolute;
-            right: 15px; top: 12px;
-            font-size: 22px;
-            font-weight: bold;
-            cursor: pointer;
-            color: #777;
-        }
+        .close-modal { position: absolute; right: 15px; top: 12px; font-size: 22px; font-weight: bold; cursor: pointer; color: #777; }
 
-        .upi-box {
-            background: #f1f5f9;
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: bold;
-            color: #0284c7;
-            margin: 10px 0;
-            border: 1px dashed #0284c7;
-        }
+        .upi-box { background: #f1f5f9; padding: 10px; border-radius: 8px; text-align: center; font-weight: bold; color: #0284c7; margin: 10px 0; border: 1px dashed #0284c7; }
 
-        .rates-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        .rates-table th, .rates-table td {
-            border: 1px solid #e2e8f0;
-            padding: 10px;
-            text-align: left;
-            font-size: 13px;
-        }
-
-        .rates-table th {
-            background-color: #e0005a;
-            color: white;
-            font-weight: bold;
-        }
-
+        .rates-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .rates-table th, .rates-table td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; font-size: 13px; }
+        .rates-table th { background-color: #e0005a; color: white; font-weight: bold; }
         .rates-table tr:nth-child(even) { background-color: #f8fafc; }
         .rates-table td span { color: #22c55e; font-weight: bold; }
 
-        .history-item {
-            border-bottom: 1px solid #e2e8f0;
-            padding: 10px 0;
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-        }
+        .history-item { border-bottom: 1px solid #e2e8f0; padding: 10px 0; display: flex; justify-content: space-between; font-size: 13px; }
 
-        .bottom-navbar {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            background-color: #ffffff;
-            display: flex;
-            justify-content: space-around;
-            padding: 8px 0;
-            border-top: 1px solid #e0e0e0;
-            z-index: 200;
-        }
-
-        .nav-link {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 11px;
-            color: #666;
-            text-decoration: none;
-            font-weight: bold;
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-
+        .bottom-navbar { position: fixed; bottom: 0; left: 0; right: 0; background-color: #ffffff; display: flex; justify-content: space-around; padding: 8px 0; border-top: 1px solid #e0e0e0; z-index: 200; }
+        .nav-link { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: #666; text-decoration: none; font-weight: bold; background: none; border: none; cursor: pointer; }
         .nav-link.active { color: #e0005a; }
     </style>
 </head>
@@ -506,10 +251,7 @@
 
             <table class="rates-table">
                 <thead>
-                    <tr>
-                        <th>Game Type</th>
-                        <th>Bidding Rate</th>
-                    </tr>
+                    <tr><th>Game Type</th><th>Bidding Rate</th></tr>
                 </thead>
                 <tbody>
                     <tr><td>Single Digit</td><td>₹100 = <span>₹1000</span></td></tr>
@@ -630,12 +372,13 @@
         </div>
     </div>
 
-    <!-- SIDE MENU MODAL -->
+    <!-- SIDE MENU MODAL (Admin Button Added Here) -->
     <div id="menu-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal('menu-modal')">✕</span>
             <h3 style="color: #e0005a; margin-bottom: 15px;">☰ Menu</h3>
             <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn-pink" style="background: #2e7d32;" onclick="window.location.href='admin.html'">👑 Admin Control Panel</button>
                 <button class="btn-pink" style="background: #1e293b;" onclick="closeModal('menu-modal'); openModal('rates-modal');">⭐ Game Rates</button>
                 <button class="btn-pink" style="background: #1e293b;" onclick="closeModal('menu-modal'); openModal('add-fund-modal');">💳 Deposit Points</button>
                 <button class="btn-pink" style="background: #1e293b;" onclick="closeModal('menu-modal'); openModal('withdraw-modal');">📤 Withdrawal</button>
@@ -646,20 +389,20 @@
     </div>
     <!-- JAVASCRIPT & FIREBASE INTEGRATION LOGIC -->
     <script>
-        // 🔹 1. अपनी Firebase Credentials यहाँ दर्ज करें
+        // 🔹 1. अपनी Firebase Credentials (API Key Space Fixed)
         const firebaseConfig = {
-            apiKey: "AlzaSyD1r9auYHIt861GSomNFI viHDe0wu41MUK",
-            authDomain: "https://aditya-matka-a605f.firebaseapp.com",
+            apiKey: "AlzaSyD1r9auYHIt861GSomNFIviHDe0wu41MUK",
+            authDomain: "aditya-matka-a605f.firebaseapp.com",
             databaseURL: "https://aditya-matka-a605f-default-rtdb.firebaseio.com",
             projectId: "aditya-matka-a605f",
-            storageBucket: "https://aditya-matka-a605f.firebasestorage.app",
+            storageBucket: "aditya-matka-a605f.firebasestorage.app",
             messagingSenderId: "127854755006",
-            appId: "1:127854755006:web:49f97390 48ed69f97332ef",
+            appId: "1:127854755006:web:49f9739048ed69f97332ef",
         };
 
-        // Firebase Initialize
+        // Firebase Initialize (Realtime Database Maintained)
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        const db = firebase.database(); // Realtime Database API
 
         let currentPhone = localStorage.getItem('user_phone') || null;
         let walletBalance = 0;
@@ -677,8 +420,6 @@
         // 🔄 Realtime Balance & User Sync
         function initUserRealtimeData() {
             if (!currentPhone) return;
-
-            // Sync User Balance Realtime
             db.ref('users/' + currentPhone).on('value', (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
@@ -710,8 +451,7 @@
             let pass = document.getElementById('reg-pass').value.trim();
 
             if(!name || !phone || !pass) {
-                alert("कृपया पूरी जानकारी भरें!");
-                return;
+                alert("कृपया पूरी जानकारी भरें!"); return;
             }
 
             const userRef = db.ref('users/' + phone);
@@ -720,10 +460,7 @@
                     alert("यह मोबाइल नंबर पहले से रजिस्टर्ड है!");
                 } else {
                     userRef.set({
-                        name: name,
-                        phone: phone,
-                        password: pass,
-                        balance: 0,
+                        name: name, phone: phone, password: pass, balance: 0,
                         createdAt: new Date().toLocaleString()
                     }).then(() => {
                         alert("आपकी ID सफलतापूर्वक बन गई है!");
@@ -741,10 +478,7 @@
             let phone = document.getElementById('login-phone').value.trim();
             let pass = document.getElementById('login-pass').value.trim();
 
-            if(!phone || !pass) {
-                alert("मोबाइल नंबर और पासवर्ड डालें!");
-                return;
-            }
+            if(!phone || !pass) { alert("मोबाइल नंबर और पासवर्ड डालें!"); return; }
 
             db.ref('users/' + phone).get().then((snapshot) => {
                 if(snapshot.exists()) {
@@ -765,8 +499,7 @@
 
         function handleLogout() {
             localStorage.removeItem('user_phone');
-            currentPhone = null;
-            location.reload();
+            currentPhone = null; location.reload();
         }
 
         function openModal(id) { 
@@ -775,9 +508,7 @@
             if(id === 'passbook-modal') fetchPassbookHistory();
         }
 
-        function closeModal(id) { 
-            document.getElementById(id).style.display = 'none'; 
-        }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
         // 💰 SUBMIT ADD FUND REQUEST
         function submitAddFund() {
@@ -788,17 +519,11 @@
             if(!utr || utr.length < 10) return alert("सही 12-अंकों का UTR नंबर डालें!");
 
             db.ref('requests').push({
-                userPhone: currentPhone,
-                amount: amt,
-                utr: utr,
-                type: 'deposit',
-                status: 'pending',
-                time: new Date().toLocaleString()
+                userPhone: currentPhone, amount: amt, utr: utr, type: 'deposit', status: 'pending', time: new Date().toLocaleString()
             }).then(() => {
                 addPassbookEntry("Deposit Requested (UTR: " + utr + ")", "+₹" + amt, "credit");
                 alert(`₹${amt} डिपॉज़िट की रिक्वेस्ट एडमिन को भेज दी गई है!`);
-                document.getElementById('fund-amount').value = "";
-                document.getElementById('fund-utr').value = "";
+                document.getElementById('fund-amount').value = ""; document.getElementById('fund-utr').value = "";
                 closeModal('add-fund-modal');
             });
         }
@@ -813,21 +538,14 @@
             if(!details) return alert("अपनी UPI ID दर्ज करें!");
 
             db.ref('requests').push({
-                userPhone: currentPhone,
-                amount: amt,
-                details: details,
-                type: 'withdrawal',
-                status: 'pending',
-                time: new Date().toLocaleString()
+                userPhone: currentPhone, amount: amt, details: details, type: 'withdrawal', status: 'pending', time: new Date().toLocaleString()
             }).then(() => {
                 addPassbookEntry("Withdrawal Request (" + details + ")", "-₹" + amt, "debit");
                 alert(`₹${amt} का विथड्रॉल रिक्वेस्ट भेज दिया गया है।`);
-                document.getElementById('withdraw-amount').value = "";
-                document.getElementById('withdraw-details').value = "";
+                document.getElementById('withdraw-amount').value = ""; document.getElementById('withdraw-details').value = "";
                 closeModal('withdraw-modal');
             });
         }
-
         function openPlayModal(gameName) {
             currentGameSelected = gameName;
             document.getElementById('play-game-title').innerText = "Play - " + gameName;
@@ -849,19 +567,13 @@
             db.ref('users/' + currentPhone + '/balance').set(newBal).then(() => {
                 // Store Bid Details
                 db.ref('bids').push({
-                    userPhone: currentPhone,
-                    game: currentGameSelected,
-                    type: type,
-                    digit: digit,
-                    amount: amt,
-                    time: new Date().toLocaleString()
+                    userPhone: currentPhone, game: currentGameSelected, type: type, digit: digit, amount: amt, time: new Date().toLocaleString()
                 });
 
                 addPassbookEntry("Bid: " + currentGameSelected + " (" + digit + ")", "-₹" + amt, "debit");
 
                 alert(`आपकी ₹${amt} की बिड ${currentGameSelected} (${digit}) पर लग गई है!`);
-                document.getElementById('bid-digit').value = "";
-                document.getElementById('bid-amount').value = "";
+                document.getElementById('bid-digit').value = ""; document.getElementById('bid-amount').value = "";
                 closeModal('play-modal');
             });
         }
@@ -869,10 +581,7 @@
         // 📖 PASSBOOK ENTRY HELPER
         function addPassbookEntry(title, amount, type) {
             db.ref('passbook/' + currentPhone).push({
-                title: title,
-                amount: amount,
-                type: type,
-                date: new Date().toLocaleTimeString()
+                title: title, amount: amount, type: type, date: new Date().toLocaleTimeString()
             });
         }
 
@@ -881,8 +590,7 @@
             const container = document.getElementById('bids-list-container');
             db.ref('bids').orderByChild('userPhone').equalTo(currentPhone).get().then((snapshot) => {
                 if(!snapshot.exists()) {
-                    container.innerHTML = `<p style="text-align: center; color: #999; font-size: 13px;">कोई बिड नहीं लगाई गई है।</p>`;
-                    return;
+                    container.innerHTML = `<p style="text-align: center; color: #999; font-size: 13px;">कोई बिड नहीं लगाई गई है।</p>`; return;
                 }
                 let html = "";
                 snapshot.forEach(child => {
@@ -909,8 +617,7 @@
             const container = document.getElementById('passbook-list-container');
             db.ref('passbook/' + currentPhone).get().then((snapshot) => {
                 if(!snapshot.exists()) {
-                    container.innerHTML = `<p style="text-align: center; color: #999; font-size: 13px;">कोई लेनदेन दर्ज नहीं है।</p>`;
-                    return;
+                    container.innerHTML = `<p style="text-align: center; color: #999; font-size: 13px;">कोई लेनदेन दर्ज नहीं है।</p>`; return;
                 }
                 let html = "";
                 snapshot.forEach(child => {
@@ -977,4 +684,3 @@
     </script>
 </body>
 </html>
-    
